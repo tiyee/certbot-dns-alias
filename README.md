@@ -212,7 +212,29 @@ uv run twine check --strict dist/*
 测试通过 mock 官方 SDK 和 DNS 响应运行，不需要真实 API 密钥，不会写入云端 DNS。
 包含 Certbot 公共挑战生命周期测试、CNAME 链 / 环路 / 超时 / NXDOMAIN、区域匹配、
 两个 SDK 的真实请求模型和分页、已有 TXT 保留、多挑战共享与清理失败处理。
-CI 配置 Python 3.10–3.14，以及 Certbot 3.0 兼容性验证。
+多版本兼容性使用 `tox` 创建独立宿主环境，每个环境安装构建后的插件 wheel，再运行同一套 `pytest`。
+这一测试方式也用于 [Certbot 官方开发流程](https://eff-certbot.readthedocs.io/en/stable/contributing.html#testing)。
+
+```bash
+# 安装完整矩阵需要的 Python 解释器
+uv python install 3.10 3.11 3.12 3.13 3.14
+uv run tox list
+uv run tox run
+
+# 只验证一个宿主组合，或只运行部分测试
+uv run tox run -e py313-certbot3
+uv run tox run -e py313-certbot5 -- -q "$(pwd)/tests/test_authenticator.py"
+```
+
+tox 环境中的工作目录独立于源码目录，指定测试文件时使用绝对路径。
+`tox-uv` 使用 uv 创建环境和安装依赖，各环境的 Certbot 版本由 `tox.ini` 决定。
+
+| tox 环境 | Python | 宿主 Certbot |
+| --- | --- | --- |
+| `py310-certbot3`、`py313-certbot3` | 3.10、3.13 | 固定 3.0.0，与 ACME 3.0.0 搭配 |
+| `py310-certbot5` 到 `py314-certbot5` | 3.10–3.14 | 5.x 范围内可用版本，与 ACME 5.x 搭配 |
+
+CI 通过同一份 tox 配置验证上述七个组合，并保留默认锁定环境中的覆盖率、格式和打包检查。
 Certbot 3.0 的旧 ACME/josepy 依赖需要 `pyOpenSSL<25`；兼容性测试使用这一旧版本依赖组合。
 `uv.lock` 锁定的是仓库开发和默认 CI 的依赖环境；发布包通过依赖范围声明宿主兼容性，
 不会将开发环境锁定的 Certbot 版本强制施加到已有宿主环境。

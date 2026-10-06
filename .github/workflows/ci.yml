@@ -30,13 +30,31 @@ jobs:
       - run: uv build
       - run: uv run --no-sync twine check --strict dist/*
 
-  certbot-3:
+  compatibility:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: "3.10"
+            tox-env: py310-certbot3
+          - python: "3.13"
+            tox-env: py313-certbot3
+          - python: "3.10"
+            tox-env: py310-certbot5
+          - python: "3.11"
+            tox-env: py311-certbot5
+          - python: "3.12"
+            tox-env: py312-certbot5
+          - python: "3.13"
+            tox-env: py313-certbot5
+          - python: "3.14"
+            tox-env: py314-certbot5
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: latest
-          python-version: "3.10"
+          python-version: ${{ matrix.python }}
       - run: uv sync --locked
-      - run: uv run --with 'certbot==3.0.0' --with 'acme==3.0.0' --with 'pyopenssl<25' pytest
+      - run: uv run --no-sync tox run -e ${{ matrix.tox-env }}
