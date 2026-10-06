@@ -2,7 +2,9 @@
 
 Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS 或腾讯云 DNSPod 管理 TXT 验证记录。
 
-Certbot DNS-01 authentication with CNAME delegation, supporting Alibaba Cloud DNS and Tencent Cloud DNSPod.
+**支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
+
+Certbot DNS-01 authentication with CNAME delegation, supporting Alibaba Cloud DNS and Tencent Cloud DNSPod. Compatible with Certbot 3.x and 5.x.
 
 ## 工作方式
 
@@ -24,7 +26,7 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 - 清理使用创建时保存的目标区域和记录 ID；CNAME 发生变化也不会改删其他区域。
 - CNAME 环路、超深链、DNS 超时、权限错误和区域归属冲突会产生明确错误。
 
-Python **3.10+**，Certbot **3.x–5.x**。两个云服务商 SDK 均随插件安装。
+需要 Python **3.10+**，支持 **Certbot 3.x 和 5.x**。两个云服务商 SDK 均随插件安装。
 
 ## 安装
 

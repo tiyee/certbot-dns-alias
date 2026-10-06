@@ -2,6 +2,8 @@
 
 支持 CNAME 委托的 Certbot DNS-01 插件，可在阿里云 DNS 或腾讯云 DNSPod 自动添加和清理 TXT 验证记录。
 
+**支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
+
 ## 工作原理
 
 将业务域名的 `_acme-challenge` 记录通过 CNAME 指向集中管理的验证域名：
@@ -24,7 +26,7 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 
 ## 安装
 
-需要 Python 3.10+ 和 Certbot 3.x–5.x。插件由宿主 Certbot 加载，
+需要 Python **3.10+**，支持 **Certbot 3.x 和 5.x**。插件由宿主 Certbot 加载，
 必须安装在宿主的同一 Python 环境中。
 
 在已有 Certbot 的 Python 环境中安装：
