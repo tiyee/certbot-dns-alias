@@ -40,21 +40,30 @@ uv run certbot --help dns-alias
 
 ### 从 PyPI 安装（本项目发布后）
 
-使用 uv 安装 Certbot 和插件到同一个工具环境：
-
-```bash
-uv tool install --with certbot-dns-alias certbot
-certbot plugins --text
-```
-
-或者在安装 Certbot 的 Python 虚拟环境中执行：
+在宿主 Certbot 所在的 Python 环境中安装插件：
 
 ```bash
 python -m pip install certbot-dns-alias
+certbot plugins --text
 ```
 
-插件与 Certbot 必须处于同一 Python 环境。如果已有 snap/docker 版 Certbot，需在该运行环境中
-安装插件，或者改用上述 uv 工具环境。
+其中 `python` 必须是运行宿主 Certbot 的解释器。也可用 uv 明确指定宿主环境：
+
+```bash
+uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
+```
+
+插件声明 `certbot>=3.0,<6`，表示支持的宿主版本范围。同一份插件可供 Certbot 3.x 和 5.x 使用。
+已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
+如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
+
+```bash
+python -m pip install 'certbot==3.0.0' certbot-dns-alias
+```
+
+如部署环境还固定了 ACME、pyOpenSSL 等依赖，应同时使用该环境的 constraints 文件。
+插件与 Certbot 必须处于同一 Python 环境；已有 snap/docker 版 Certbot 时，需按对应安装方式
+将插件加入宿主运行环境，在其他虚拟环境中安装不会被该宿主发现。
 
 ## 凭据配置
 
@@ -123,7 +132,7 @@ _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.
 先创建 CNAME，并确保公共 DNS 可以解析；第一次申请可以使用测试环境：
 
 ```bash
-uv run certbot certonly \
+certbot certonly \
   --authenticator dns-alias \
   --dns-alias-credentials "$(pwd)/credentials.ini" \
   --dns-alias-require-cname \
@@ -134,15 +143,15 @@ uv run certbot certonly \
 ```
 
 测试通过后去掉 `--staging` 申请正式证书。域名和邮箱应替换为自己的值。
-如果使用 uv 工具安装，命令前缀用 `certbot`。
+使用宿主环境中的 `certbot` 执行命令；在仓库开发环境中验证时可使用 `uv run certbot`。
 Certbot 默认写入 `/etc/letsencrypt`、`/var/lib/letsencrypt` 和 `/var/log/letsencrypt`，
 运行账号需要相应权限；也可使用 `--config-dir`、`--work-dir` 和 `--logs-dir` 指定目录。
 
 Certbot 保存认证器和凭据文件的绝对路径，后续可使用同一环境续期：
 
 ```bash
-uv run certbot renew --dry-run
-uv run certbot renew
+certbot renew --dry-run
+certbot renew
 ```
 
 凭据文件需长期保留，临时凭据过期前需更新。按部署方式配置定时续期及证书部署 hook。
@@ -205,7 +214,8 @@ uv run twine check --strict dist/*
 两个 SDK 的真实请求模型和分页、已有 TXT 保留、多挑战共享与清理失败处理。
 CI 配置 Python 3.10–3.14，以及 Certbot 3.0 兼容性验证。
 Certbot 3.0 的旧 ACME/josepy 依赖需要 `pyOpenSSL<25`；兼容性测试使用这一旧版本依赖组合。
-新安装默认由 uv 选择最新可用的 Certbot 版本。
+`uv.lock` 锁定的是仓库开发和默认 CI 的依赖环境；发布包通过依赖范围声明宿主兼容性，
+不会将开发环境锁定的 Certbot 版本强制施加到已有宿主环境。
 
 目录结构：
 

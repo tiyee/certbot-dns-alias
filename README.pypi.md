@@ -24,19 +24,29 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 
 ## 安装
 
-需要 Python 3.10+ 和 Certbot 3.x–5.x。插件与 Certbot 必须安装在同一 Python 环境中。
+需要 Python 3.10+ 和 Certbot 3.x–5.x。插件由宿主 Certbot 加载，
+必须安装在宿主的同一 Python 环境中。
 
-使用 uv 安装 Certbot 和插件：
-
-```bash
-uv tool install --with certbot-dns-alias certbot
-```
-
-或者在已有 Certbot 的 Python 虚拟环境中安装：
+在已有 Certbot 的 Python 环境中安装：
 
 ```bash
 python -m pip install certbot-dns-alias
 ```
+
+其中 `python` 必须是运行宿主 Certbot 的解释器。使用 uv 时可显式指定该环境：
+
+```bash
+uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
+```
+
+插件声明的 `certbot>=3.0,<6` 是兼容范围，同一份插件支持 Certbot 3.x 和 5.x。
+如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
+
+```bash
+python -m pip install 'certbot==3.0.0' certbot-dns-alias
+```
+
+已有宿主的其他依赖版本约束，可通过该部署环境的 constraints 文件一并保留。
 
 确认插件可用：
 
