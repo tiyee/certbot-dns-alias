@@ -242,7 +242,7 @@ uv publish dist/*
 上传时配置对应的 `UV_PUBLISH_TOKEN`。发布新版本前清空旧 `dist` 产物，以免上传旧版本。
 
 仓库包含 `.github/workflows/publish.yml`，GitHub Release 发布时会验证标签与项目版本一致
-（例如版本 `0.1.0` 对应 `v0.1.0`），运行测试、构建 wheel/sdist 并通过 PyPI Trusted Publishing 上传。
+（例如版本 `0.1.1` 对应 `v0.1.1`），运行测试、构建 wheel/sdist 并通过 PyPI Trusted Publishing 上传。
 需先在 PyPI 为仓库 `tiyee/certbot-dns-alias` 配置 Trusted Publisher，工作流文件名 `publish.yml`，
 environment 为 `pypi`；尚未创建 PyPI 项目时可以使用 pending publisher。
 GitHub 仓库中创建同名 environment，可按需要设置发布审核。预发布 Release 只构建，不上传正式 PyPI。

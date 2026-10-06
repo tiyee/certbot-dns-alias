@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "certbot-dns-alias"
-version = "0.1.0"
+version = "0.1.1"
 description = "Certbot DNS-01 plugin with CNAME delegation for Alibaba Cloud DNS and Tencent Cloud DNSPod"
 readme = "README.pypi.md"
 requires-python = ">=3.10"
