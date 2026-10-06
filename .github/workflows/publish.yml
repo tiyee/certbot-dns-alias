@@ -32,12 +32,18 @@ jobs:
       - run: uv run --no-sync ruff check .
       - run: uv run --no-sync ruff format --check .
       - run: uv run --no-sync tox run -e py313-certbot3,py313-certbot5
-      - run: uv build
-      - run: uv run --no-sync twine check --strict dist/*
+      - run: uv run --no-sync python scripts/build_distributions.py
+      - run: uv run --no-sync twine check --strict dist/alias/* dist/delegation/*
+      - name: Check alias with Certbot 3 and 5
+        run: |
+          uv run --no-sync python scripts/check_installation.py --python .tox/py313-certbot3/bin/python
+          uv run --no-sync python scripts/check_installation.py --python .tox/py313-certbot5/bin/python
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: distributions
-          path: dist/
+          path: |
+            dist/alias/*
+            dist/delegation/*
 
   publish:
     needs: build
@@ -51,4 +57,13 @@ jobs:
         with:
           name: distributions
           path: dist/
-      - uses: pypa/gh-action-pypi-publish@v1.14.2
+      - name: Publish certbot-dns-alias
+        uses: pypa/gh-action-pypi-publish@v1.14.2
+        with:
+          packages-dir: dist/alias/
+          skip-existing: true
+      - name: Publish certbot-dns-delegation
+        uses: pypa/gh-action-pypi-publish@v1.14.2
+        with:
+          packages-dir: dist/delegation/
+          skip-existing: true

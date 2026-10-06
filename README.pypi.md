@@ -4,6 +4,9 @@
 
 **支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
 
+提供两个安装名称：`certbot-dns-alias` 和 `certbot-dns-delegation`。
+后者是安装别名，会自动安装同版本的主包；两种方式都使用 Certbot 认证器 `dns-alias`。
+
 ## 工作原理
 
 将业务域名的 `_acme-challenge` 记录通过 CNAME 指向集中管理的验证域名：
@@ -34,6 +37,14 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```bash
 python -m pip install certbot-dns-alias
 ```
+
+也可使用安装别名，两者任选其一即可：
+
+```bash
+python -m pip install certbot-dns-delegation
+```
+
+安装别名后，认证器仍为 `dns-alias`，参数和凭据键仍使用 `dns-alias` / `dns_alias` 前缀。
 
 其中 `python` 必须是运行宿主 Certbot 的解释器。使用 uv 时可显式指定该环境：
 

@@ -27,8 +27,8 @@ jobs:
       - run: uv run --no-sync pytest --cov=certbot_dns_alias --cov-report=term-missing
       - name: Check Certbot discovery
         run: uv run --no-sync certbot plugins --text
-      - run: uv build
-      - run: uv run --no-sync twine check --strict dist/*
+      - run: uv run --no-sync python scripts/build_distributions.py
+      - run: uv run --no-sync twine check --strict dist/alias/* dist/delegation/*
 
   compatibility:
     runs-on: ubuntu-latest
@@ -58,3 +58,9 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: uv sync --locked
       - run: uv run --no-sync tox run -e ${{ matrix.tox-env }}
+      - name: Build both distributions
+        if: ${{ matrix.python == '3.13' }}
+        run: uv run --no-sync python scripts/build_distributions.py
+      - name: Check alias installation and removal
+        if: ${{ matrix.python == '3.13' }}
+        run: uv run --no-sync python scripts/check_installation.py --python .tox/${{ matrix.tox-env }}/bin/python

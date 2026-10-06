@@ -4,6 +4,9 @@ Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS 或腾讯云 DNSPod 
 
 **支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
 
+提供两个安装名称：`certbot-dns-alias` 和 `certbot-dns-delegation`。
+后者是安装别名，会自动安装同版本的主包；两种方式都使用 Certbot 认证器 `dns-alias`。
+
 Certbot DNS-01 authentication with CNAME delegation, supporting Alibaba Cloud DNS and Tencent Cloud DNSPod. Compatible with Certbot 3.x and 5.x.
 
 ## 工作方式
@@ -48,6 +51,14 @@ uv run certbot --help dns-alias
 python -m pip install certbot-dns-alias
 certbot plugins --text
 ```
+
+也可使用安装别名，两者任选其一即可：
+
+```bash
+python -m pip install certbot-dns-delegation
+```
+
+安装别名后，认证器仍为 `dns-alias`，参数和凭据键仍使用 `dns-alias` / `dns_alias` 前缀。
 
 其中 `python` 必须是运行宿主 Certbot 的解释器。也可用 uv 明确指定宿主环境：
 
@@ -207,8 +218,8 @@ uv sync --locked
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest --cov=certbot_dns_alias --cov-report=term-missing
-uv build
-uv run twine check --strict dist/*
+uv run python scripts/build_distributions.py
+uv run twine check --strict dist/alias/* dist/delegation/*
 ```
 
 测试通过 mock 官方 SDK 和 DNS 响应运行，不需要真实 API 密钥，不会写入云端 DNS。
@@ -237,6 +248,15 @@ tox 环境中的工作目录独立于源码目录，指定测试文件时使用�
 | `py310-certbot5` 到 `py314-certbot5` | 3.10–3.14 | 5.x 范围内可用版本，与 ACME 5.x 搭配 |
 
 CI 通过同一份 tox 配置验证上述七个组合，并保留默认锁定环境中的覆盖率、格式和打包检查。
+在 Python 3.13 的 Certbot 3 和 5 环境中，还验证安装别名的依赖解析、插件发现、
+入口点唯一性，以及卸载别名后主插件仍可加载：
+
+```bash
+# 先构建两套安装包，并创建上述两个 tox 宿主环境
+uv run python scripts/check_installation.py --python .tox/py313-certbot3/bin/python
+uv run python scripts/check_installation.py --python .tox/py313-certbot5/bin/python
+```
+
 Certbot 3.0 的旧 ACME/josepy 依赖需要 `pyOpenSSL<25`；兼容性测试使用这一旧版本依赖组合。
 `uv.lock` 锁定的是仓库开发和默认 CI 的依赖环境；发布包通过依赖范围声明宿主兼容性，
 不会将开发环境锁定的 Certbot 版本强制施加到已有宿主环境。
@@ -254,6 +274,7 @@ certbot_dns_alias/
     tencent.py        # 腾讯云 DNSPod SDK
 examples/             # 三种模式的凭据示例
 tests/                # 无网络单元和生命周期测试
+scripts/              # 双包构建及宿主安装检查
 ```
 
 创建和删除 API 不自动重试写请求，避免响应丢失后的重复创建。清理失败会记录警告并继续清理其他挑战。
@@ -262,24 +283,38 @@ tests/                # 无网络单元和生命周期测试
 
 ## 发布到 PyPI
 
-包名为 `certbot-dns-alias`，Certbot 入口点为 `dns-alias`。
+同一版本发布两个包，Certbot 入口点为 `dns-alias`：
+
+- `certbot-dns-alias` 包含插件代码和入口点，产物位于 `dist/alias/`。
+- `certbot-dns-delegation` 仅包含包元数据，精确依赖同版本主包，产物位于 `dist/delegation/`。
+
+别名包的版本、Python 要求和项目元数据从主包 `pyproject.toml` 自动生成，
+PyPI Description 复用 `README.pypi.md` 并替换标题，无需维护第二份版本号或插件代码。
 
 手动发布前，在 `pyproject.toml` 更新版本，再运行 `uv lock`、测试和构建。可先上传 TestPyPI：
 
 ```bash
-uv build
-uv publish --publish-url https://test.pypi.org/legacy/ dist/*
+uv run python scripts/build_distributions.py
+uv publish --publish-url https://test.pypi.org/legacy/ dist/alias/*
+uv publish --publish-url https://test.pypi.org/legacy/ dist/delegation/*
 # 正式发布
-uv publish dist/*
+uv publish dist/alias/*
+uv publish dist/delegation/*
 ```
 
-上传时配置对应的 `UV_PUBLISH_TOKEN`。发布新版本前清空旧 `dist` 产物，以免上传旧版本。
+上传时配置有权发布对应项目的 `UV_PUBLISH_TOKEN`。构建脚本会更新两个产物目录，避免混入旧版本。
+单独运行 `uv build` 仍只构建主包。
 
 仓库包含 `.github/workflows/publish.yml`，GitHub Release 发布时会验证标签与项目版本一致
-（例如版本 `0.1.1` 对应 `v0.1.1`），运行测试、构建 wheel/sdist 并通过 PyPI Trusted Publishing 上传。
-需先在 PyPI 为仓库 `tiyee/certbot-dns-alias` 配置 Trusted Publisher，工作流文件名 `publish.yml`，
-environment 为 `pypi`；尚未创建 PyPI 项目时可以使用 pending publisher。
+（例如版本 `0.1.1` 对应 `v0.1.1`），运行测试、构建两个包的 wheel/sdist，
+通过 PyPI Trusted Publishing 先上传主包，再上传别名包。
+需先在 PyPI 的两个项目中分别为仓库 `tiyee/certbot-dns-alias` 配置相同的 Trusted Publisher：
+owner 为 `tiyee`，repository 为 `certbot-dns-alias`，工作流文件名为 `publish.yml`，
+environment 为 `pypi`；尚未创建的项目使用对应包名配置 pending publisher。
+PyPI 支持 [多个项目共用同一发布工作流](https://docs.pypi.org/trusted-publishers/internals/)。
 GitHub 仓库中创建同名 environment，可按需要设置发布审核。预发布 Release 只构建，不上传正式 PyPI。
+两次上传并非原子操作；工作流跳过已存在的产物，部分上传失败后可以重跑发布任务补传。
+PyPI 已发布的同版本产物无法覆盖，修改已发布包的内容需增加版本号。
 
 ## License
 
