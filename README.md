@@ -306,7 +306,7 @@ uv publish dist/delegation/*
 单独运行 `uv build` 仍只构建主包。
 
 仓库包含 `.github/workflows/publish.yml`，GitHub Release 发布时会验证标签与项目版本一致
-（例如版本 `0.1.1` 对应 `v0.1.1`），运行测试、构建两个包的 wheel/sdist，
+（例如版本 `0.1.2` 对应 `v0.1.2`），运行测试、构建两个包的 wheel/sdist，
 通过 PyPI Trusted Publishing 先上传主包，再上传别名包。
 需先在 PyPI 的两个项目中分别为仓库 `tiyee/certbot-dns-alias` 配置相同的 Trusted Publisher：
 owner 为 `tiyee`，repository 为 `certbot-dns-alias`，工作流文件名为 `publish.yml`，
