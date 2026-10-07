@@ -1,91 +1,102 @@
 # certbot-dns-alias
 
-Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS 或腾讯云 DNSPod 管理 TXT 验证记录。
+English | [Simplified Chinese](README.zh-CN.md)
 
-**支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
+A Certbot DNS-01 plugin that manages TXT validation records through CNAME delegation
+with Alibaba Cloud DNS or Tencent Cloud DNSPod.
 
-提供两个安装名称：`certbot-dns-alias` 和 `certbot-dns-delegation`。
-后者是安装别名，会自动安装同版本的主包；两种方式都使用 Certbot 认证器 `dns-alias`。
+**Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
 
-Certbot DNS-01 authentication with CNAME delegation, supporting Alibaba Cloud DNS and Tencent Cloud DNSPod. Compatible with Certbot 3.x and 5.x.
+Two installation names are available: `certbot-dns-alias` and `certbot-dns-delegation`.
+The latter is an installation alias that automatically installs the same version of the main
+package. Both use the Certbot authenticator `dns-alias`.
 
-## 工作方式
+## How it works
 
-在业务域名的 DNS 中预先创建 CNAME：
+Create a CNAME record in the DNS zone of the domain you want to secure:
 
 ```dns
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-`delegate.example.net` 托管在阿里云或腾讯云。插件自动跟随 CNAME 链，在最终目标
-`example-com.delegate.example.net` 添加本次挑战的 TXT 值，等待 DNS 传播，完成后按记录 ID 清理。
-业务域名可以由任意 DNS 服务商托管；插件只需要目标托管区域的 API 凭据。
+Host `delegate.example.net` on Alibaba Cloud or Tencent Cloud. The plugin follows the CNAME
+chain, adds the challenge's TXT value at the final target `example-com.delegate.example.net`,
+waits for DNS propagation, and cleans up using the saved record ID when validation finishes.
+The original domain can use any DNS provider; the plugin only needs API credentials for the
+target's managed zone.
 
-- 支持多级 CNAME、泛域名、一个证书包含多个域名。
-- 支持阿里云、腾讯云单独使用，或 `auto` 模式在一次申请中同时使用两者。
-- 根据托管区域列表做最长 DNS 后缀匹配，支持 `example.co.uk` 和独立托管的子域，匹配包含标签边界。
-- 区域列表及 TXT 查询支持 API 分页；可以显式配置区域以跳过自动枚举。
-- 每个 TXT 值单独创建，保留同名记录的其他值；复用已有的相同有效 TXT 时不删除原记录。
-- 清理使用创建时保存的目标区域和记录 ID；CNAME 发生变化也不会改删其他区域。
-- CNAME 环路、超深链、DNS 超时、权限错误和区域归属冲突会产生明确错误。
+- Supports multiple CNAME hops, wildcard certificates, and multiple domains in one certificate.
+- Uses Alibaba Cloud or Tencent Cloud individually, or both in one request with `auto` mode.
+- Selects the longest matching DNS suffix from managed zones, respecting label boundaries and
+  supporting names such as `example.co.uk` and separately hosted subdomains.
+- Handles API pagination for zone and TXT queries; explicit zone lists skip automatic discovery.
+- Creates each TXT value separately and preserves other values at the same name. Existing valid
+  records with the same value are reused and never deleted by the plugin.
+- Cleans up using the zone and record ID saved at creation time, even if the CNAME later changes.
+- Reports clear errors for CNAME loops, excessive chain depth, DNS timeouts, permission failures,
+  and ambiguous zone ownership.
 
-支持 Python **3.9–3.14**、**Certbot 3.x 和 5.x**，具体组合如下：
+Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following combinations:
 
 | Python | Certbot 3.x | Certbot 5.x |
 | --- | --- | --- |
-| 3.9 | 支持 | 上游要求 Python ≥3.10 |
-| 3.10–3.13 | 支持 | 支持 |
-| 3.14 | 旧版 josepy 无法导入 | 支持 |
+| 3.9 | Supported | Upstream requires Python ≥3.10 |
+| 3.10–3.13 | Supported | Supported |
+| 3.14 | Older josepy cannot be imported | Supported |
 
-两个云服务商 SDK 均随插件安装。
+Both cloud provider SDKs are installed with the plugin.
 
-## 安装
+## Installation
 
-在宿主 Certbot 所在的 Python 环境中安装插件：
+Install the plugin in the Python environment that runs your Certbot host:
 
 ```bash
 python -m pip install certbot-dns-alias
 certbot plugins --text
 ```
 
-也可使用安装别名，两者任选其一即可：
+Alternatively, use the installation alias. Choose either package:
 
 ```bash
 python -m pip install certbot-dns-delegation
 ```
 
-安装别名后，认证器仍为 `dns-alias`，参数和凭据键仍使用 `dns-alias` / `dns_alias` 前缀。
+With the alias installed, the authenticator is still `dns-alias`, and options and credential
+keys still use the `dns-alias` / `dns_alias` prefixes.
 
-其中 `python` 必须是运行宿主 Certbot 的解释器。也可用 uv 明确指定宿主环境：
+Here, `python` must be the interpreter running your Certbot host. You can also specify the host
+environment explicitly with uv:
 
 ```bash
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-插件按 Python 版本声明宿主依赖：Python 3.9 使用 Certbot 3，Python 3.14 使用 Certbot 5，
-Python 3.10–3.13 可使用 Certbot 3 或 5。
-已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
-如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
+Host dependency requirements depend on the Python version: Python 3.9 uses Certbot 3,
+Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
+When the installed host satisfies these requirements, pip's default upgrade strategy only
+upgrades dependencies when needed. To preserve an exact host version, pin it explicitly during
+installation. For example, for a `3.0.0` host:
 
 ```bash
 python -m pip install 'certbot==3.0.0' certbot-dns-alias
 ```
 
-如部署环境还固定了 ACME、pyOpenSSL 等依赖，应同时使用该环境的 constraints 文件。
-插件与 Certbot 必须处于同一 Python 环境；已有 snap/docker 版 Certbot 时，需按对应安装方式
-将插件加入宿主运行环境，在其他虚拟环境中安装不会被该宿主发现。
+If your deployment also pins ACME, pyOpenSSL, or other dependencies, use its constraints file.
+The plugin and Certbot must share the same Python environment. For a snap or Docker installation
+of Certbot, add the plugin to that host's runtime using the appropriate installation method;
+installing it in another virtual environment will not make it discoverable by that host.
 
-## 凭据配置
+## Credentials
 
-使用不带 INI section 的 `key = value` 格式。完整示例见 [examples](examples)。
-复制示例后填入密钥，并设置权限：
+Use `key = value` entries without an INI section. Complete examples are in [examples](examples).
+Copy an example, fill in your credentials, and restrict file permissions:
 
 ```bash
 cp examples/tencent.ini credentials.ini
 chmod 600 credentials.ini
 ```
 
-### 阿里云
+### Alibaba Cloud
 
 ```ini
 dns_alias_provider = aliyun
@@ -94,10 +105,11 @@ dns_alias_aliyun_access_key_secret = YOUR_ACCESS_KEY_SECRET
 dns_alias_aliyun_zones = delegate.example.net
 ```
 
-可选项：`dns_alias_aliyun_region_id`（默认 `cn-hangzhou`）、
-`dns_alias_aliyun_security_token`（临时 STS 凭据）。固定使用公共端点 `alidns.aliyuncs.com`。
+Optional settings: `dns_alias_aliyun_region_id` (default: `cn-hangzhou`) and
+`dns_alias_aliyun_security_token` (temporary STS credentials). The plugin uses the public endpoint
+`alidns.aliyuncs.com`.
 
-### 腾讯云 DNSPod
+### Tencent Cloud DNSPod
 
 ```ini
 dns_alias_provider = tencent
@@ -106,10 +118,11 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = delegate.example.net
 ```
 
-可选项：`dns_alias_tencent_token`（临时会话凭据）。使用腾讯云 API v20210323 和
-`dnspod.tencentcloudapi.com`，不使用旧版 DNSPod Token API 或国际版端点。
+Optional setting: `dns_alias_tencent_token` (temporary session credentials). The plugin uses
+Tencent Cloud API v20210323 at `dnspod.tencentcloudapi.com`, rather than the legacy DNSPod Token
+API or the international endpoint.
 
-### 同时使用两家云服务商
+### Using both cloud providers
 
 ```ini
 dns_alias_provider = auto
@@ -121,25 +134,28 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
 ```
 
-例如：
+For example:
 
 ```dns
 _acme-challenge.example.com.      300 IN CNAME example-com.ali-delegate.example.net.
 _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.example.org.
 ```
 
-随后在同一命令中传入 `-d example.com -d api.example.org` 即可。`auto` 至少需要一组完整密钥，
-也可以只配置一家。如果同一最长匹配区域同时属于两个服务商，插件会报错；通过调整显式区域列表
-或选择单一 `provider` 消除歧义。
+Then pass `-d example.com -d api.example.org` in the same certificate request. The `auto` mode
+requires at least one complete set of credentials; configuring only one provider is also valid.
+If the same longest matching zone belongs to both providers, the plugin reports an error.
+Adjust the explicit zone lists or select a single `provider` to resolve the ambiguity.
 
-所有 `*_zones` 均为可选项，多个区域以逗号分隔，例如 `example.net, example.co.uk`。
-配置后只允许这些区域，不再调用对应的域名枚举 API；填写云平台实际托管区域名称，
-不要填写完整 TXT 主机名。未配置时自动枚举当前凭据可见的区域。
-每家服务商目前支持一个凭据账号。
+All `*_zones` settings are optional. Separate multiple zones with commas, for example
+`example.net, example.co.uk`. An explicit list restricts eligible zones and skips that provider's
+domain discovery API. Use actual zone names hosted by the cloud provider, rather than complete
+TXT hostnames. When omitted, the plugin discovers all zones visible to the credentials.
+Currently, one credential account is supported per provider.
 
-## 申请和续期
+## Issuance and renewal
 
-先创建 CNAME，并确保公共 DNS 可以解析；第一次申请可以使用测试环境：
+Create the CNAME first and ensure it resolves through public DNS. Use the staging environment
+for an initial test:
 
 ```bash
 certbot certonly \
@@ -152,65 +168,75 @@ certbot certonly \
   -d example.com -d '*.example.com'
 ```
 
-测试通过后去掉 `--staging` 申请正式证书。域名和邮箱应替换为自己的值。
-使用宿主环境中的 `certbot` 执行命令。
-Certbot 默认写入 `/etc/letsencrypt`、`/var/lib/letsencrypt` 和 `/var/log/letsencrypt`，
-运行账号需要相应权限；也可使用 `--config-dir`、`--work-dir` 和 `--logs-dir` 指定目录。
+After testing, remove `--staging` to request a production certificate. Replace the domains and
+email address with your own values, and run `certbot` from the host environment.
+By default, Certbot writes to `/etc/letsencrypt`, `/var/lib/letsencrypt`, and `/var/log/letsencrypt`.
+The account running Certbot needs permission to access these directories. You can select other
+locations with `--config-dir`, `--work-dir`, and `--logs-dir`.
 
-Certbot 保存认证器和凭据文件的绝对路径，后续可使用同一环境续期：
+Certbot saves the authenticator and the absolute credentials file path. Renew in the same
+environment:
 
 ```bash
 certbot renew --dry-run
 certbot renew
 ```
 
-凭据文件需长期保留，临时凭据过期前需更新。按部署方式配置定时续期及证书部署 hook。
+Keep the credentials file available and refresh temporary credentials before they expire.
+Configure scheduled renewal and certificate deployment hooks for your deployment.
 
-### 可配置参数
+### Options
 
-| 参数 | 默认值 | 作用 |
+| Option | Default | Description |
 | --- | --- | --- |
-| `--dns-alias-credentials` | 必填 | 凭据 INI 路径 |
-| `--dns-alias-propagation-seconds` | `60` | 全部 TXT 添加后，统一等待的传播时间 |
-| `--dns-alias-ttl` | `600` | 创建 TXT 时的 TTL，需满足云套餐限制 |
-| `--dns-alias-cname-max-depth` | `8` | 允许的最大 CNAME 链接数 |
-| `--dns-alias-dns-timeout` | `10` | 每次 CNAME 查询的总超时，秒 |
-| `--dns-alias-dns-retries` | `2` | 超时或无可用 nameserver 时额外重试次数 |
-| `--dns-alias-resolvers` | 系统 DNS | 逗号分隔的 DNS 服务器 IPv4/IPv6 地址 |
-| `--dns-alias-require-cname` | 关闭 | 原始挑战名称没有 CNAME 时拒绝写入 |
+| `--dns-alias-credentials` | Required | Path to the credentials INI file |
+| `--dns-alias-propagation-seconds` | `60` | Propagation wait in seconds after all TXT records are ready |
+| `--dns-alias-ttl` | `600` | TXT record TTL; must satisfy the cloud plan's limits |
+| `--dns-alias-cname-max-depth` | `8` | Maximum number of CNAME hops |
+| `--dns-alias-dns-timeout` | `10` | Total timeout in seconds for each CNAME query |
+| `--dns-alias-dns-retries` | `2` | Additional retries after a timeout or unavailable nameservers |
+| `--dns-alias-resolvers` | System DNS | Comma-separated IPv4/IPv6 DNS server addresses |
+| `--dns-alias-require-cname` | Disabled | Reject writes when the original challenge name has no CNAME |
 
-没有 CNAME 时，默认允许直接在原始挑战名称所属托管区域创建 TXT。只允许委托验证时启用
-`--dns-alias-require-cname`。解析器使用绝对 DNS 名称，禁止系统 search suffix 扩展。
-NXDOMAIN / 无 CNAME 表示链终点；超时、SERVFAIL 等解析失败不会当作链终点。
+By default, if no CNAME exists, the plugin may create TXT records directly in the managed zone
+of the original challenge name. Enable `--dns-alias-require-cname` to require delegation.
+The resolver uses absolute DNS names and disables system search suffix expansion.
+NXDOMAIN or no CNAME marks the end of a chain; timeouts, SERVFAIL, and other resolution failures
+are treated as errors.
 
-TTL 与传播等待时间不同。第一次创建目标主机可能受 DNS 负缓存影响，必要时提高传播等待时间。
-不同业务域名应使用不同委托主机名；普通域名与其泛域名会共用 `_acme-challenge` 名称，
-插件会保留本次申请需要的多个 TXT 值。插件不会更新整个 TXT RRset。
+TTL and propagation wait are different settings. Creating a target hostname for the first time
+may encounter DNS negative caching; increase the propagation wait if needed.
+Use distinct delegation hostnames for different domains. A domain and its wildcard share the
+same `_acme-challenge` name, and the plugin preserves all TXT values needed for the request.
+It does not replace the entire TXT RRset.
 
-创建状态保存在当前 Certbot 进程内；进程被强制终止、创建成功但响应丢失或删除失败时，可能留有 TXT，
-需要在委托区域手动清理。清理失败会记录警告并继续清理其他挑战。
+Creation state is stored only in the current Certbot process. Forced termination, a lost
+response after a successful creation, or a deletion failure may leave TXT records behind;
+remove these manually from the delegated zone. Cleanup failures produce warnings while the
+plugin continues cleaning up other challenges.
 
-## API 权限
+## API permissions
 
-阿里云需要：
+Alibaba Cloud requires:
 
 - `alidns:DescribeDomainRecords`
 - `alidns:AddDomainRecord`
 - `alidns:DeleteDomainRecord`
-- 未配置 `dns_alias_aliyun_zones` 时，还需要 `alidns:DescribeDomains`
+- `alidns:DescribeDomains` when `dns_alias_aliyun_zones` is not configured
 
-腾讯云需要：
+Tencent Cloud requires:
 
 - `dnspod:DescribeRecordList`
 - `dnspod:CreateRecord`
 - `dnspod:DeleteRecord`
-- 未配置 `dns_alias_tencent_zones` 时，还需要 `dnspod:DescribeDomainList`
+- `dnspod:DescribeDomainList` when `dns_alias_tencent_zones` is not configured
 
-可根据云平台支持的资源范围将权限限制在委托区域。API 字段与权限参考
-[阿里云 AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord)、
-[阿里云 DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains) 和
-[腾讯云 DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166)。
+Restrict permissions to delegated zones where the cloud provider supports resource scoping.
+For API fields and permissions, see
+[Alibaba Cloud AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord),
+[Alibaba Cloud DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains), and
+[Tencent Cloud DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166).
 
 ## License
 
-MIT，见 [LICENSE](LICENSE)。
+MIT. See [LICENSE](LICENSE).

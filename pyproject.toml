@@ -58,7 +58,7 @@ packages = ["certbot_dns_alias"]
 core-metadata-version = "2.4"
 
 [tool.hatch.build.targets.sdist]
-include = ["/certbot_dns_alias", "/tests", "/examples", "/scripts", "/README.md", "/README.pypi.md", "/LICENSE", "/pyproject.toml", "/tox.ini", "/uv.lock"]
+include = ["/certbot_dns_alias", "/tests", "/examples", "/scripts", "/README.md", "/README.zh-CN.md", "/README.pypi.md", "/LICENSE", "/pyproject.toml", "/tox.ini", "/uv.lock"]
 core-metadata-version = "2.4"
 
 [tool.pytest.ini_options]
