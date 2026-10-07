@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS、腾讯云 DNSPod 或 Cloudflare 管理 TXT 验证记录。
+Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS、腾讯云 DNSPod、Cloudflare 或 GoDaddy 管理 TXT 验证记录。
 
 **支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
 
@@ -17,12 +17,12 @@ Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS、腾讯云 DNSPod �
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-`delegate.example.net` 托管在阿里云、腾讯云或 Cloudflare。插件自动跟随 CNAME 链，在最终目标
+`delegate.example.net` 托管在阿里云、腾讯云、Cloudflare 或 GoDaddy。插件自动跟随 CNAME 链，在最终目标
 `example-com.delegate.example.net` 添加本次挑战的 TXT 值，等待 DNS 传播，完成后按记录 ID 清理。
 业务域名可以由任意 DNS 服务商托管；插件只需要目标托管区域的 API 凭据。
 
 - 支持多级 CNAME、泛域名、一个证书包含多个域名。
-- 支持阿里云、腾讯云、Cloudflare 单独使用，或 `auto` 模式在一次申请中使用任意组合。
+- 支持阿里云、腾讯云、Cloudflare、GoDaddy 单独使用，或 `auto` 模式在一次申请中使用任意组合。
 - 根据托管区域列表做最长 DNS 后缀匹配，支持 `example.co.uk` 和独立托管的子域，匹配包含标签边界。
 - 区域列表及 TXT 查询支持 API 分页；可以显式配置区域以跳过自动枚举。
 - 每个 TXT 值单独创建，保留同名记录的其他值；复用已有的相同有效 TXT 时不删除原记录。
@@ -37,7 +37,7 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 | 3.10–3.13 | 支持 | 支持 |
 | 3.14 | 旧版 josepy 无法导入 | 支持 |
 
-三个服务商 SDK 均随插件安装。
+三个官方服务商 SDK 和包内 GoDaddy REST 客户端均随插件安装。
 
 ## 安装
 
@@ -135,6 +135,30 @@ Cloudflare TXT 的 TTL 支持 `1`（自动）或 60–86400 秒（Enterprise 最
 插件默认 `600` 符合要求。委托 CNAME 应设为 DNS-only，以便公共解析器跟随；
 Cloudflare 代理或 CNAME flattening 可能隐藏 CNAME。
 
+### GoDaddy
+
+```ini
+dns_alias_provider = godaddy
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = delegate.example.net
+```
+
+插件使用包内 GoDaddy Domains v3 客户端，以 Personal Access Token（PAT）访问
+`https://api.godaddy.com`，不支持旧版 API key/secret 凭据。
+查询需要 `domains.domain:read`，写入需要 `domains.dns:update`。
+TXT TTL 必须为 600–86400 秒，插件默认 `600` 符合要求。
+
+`dns_alias_godaddy_zones` 是可选的区域白名单，配置后跳过已注册域名枚举。
+独立委托子域或不在账号已注册域名列表中的 DNS 区域应使用此设置。
+省略时，插件完整枚举已注册域名，并逐一验证 DNS API 访问及区域根部的 SOA 记录。
+只有存在根部 SOA 的候选区域才可用于路由。API 失败或分页不完整会终止发现，
+不会缓存部分结果；账号内包含 DNS 不可访问的域名时，应显式配置区域列表。
+请确保委托区域由 GoDaddy 的权威域名服务器提供解析。
+
+可选项：`dns_alias_godaddy_ote = true` 使用 `https://api.ote-godaddy.com` 和独立 OTE 凭据。
+默认值为 `false`（生产环境）。此设置选择 GoDaddy API 环境，与 Certbot 的
+`--staging` ACME 环境相互独立。
+
 ### 同时使用多家服务商
 
 ```ini
@@ -147,6 +171,8 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
 dns_alias_cloudflare_api_token = YOUR_API_TOKEN
 dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = gd-delegate.example.net
 ```
 
 例如：
@@ -164,6 +190,7 @@ _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.
 配置后只允许这些区域，不再调用对应的域名枚举 API；填写云平台实际托管区域名称，
 不要填写完整 TXT 主机名。Cloudflare 显式区域列表还需按上述说明提供 ID。
 Cloudflare 的两个区域配置均省略时，或其他服务商未配置 `*_zones` 时，自动枚举当前凭据可见的区域。
+GoDaddy 从已注册域名开始发现，并按上述说明验证 DNS API 访问。
 每家服务商目前支持一个凭据账号。
 
 ## 申请和续期
@@ -244,15 +271,25 @@ Cloudflare API Token 需要：
 [Cloudflare DNS 记录](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/) 和
 [区域枚举](https://developers.cloudflare.com/api/python/resources/zones/methods/list/)。
 
+GoDaddy Personal Access Token 需要：
+
+- `domains.domain:read`，用于已注册域名枚举和 DNS 记录查询
+- `domains.dns:update`，用于单独创建和删除 TXT 记录
+
+插件通过包内 REST 客户端使用 Domains v3，参考
+[GoDaddy DNS 文档](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns)。
+清理返回 404 时，只有完整查询已保存区域的 TXT，并确认已保存记录 ID 不存在后，才视为成功。
+区域不可访问或不存在时仍保留清理错误，后续可以重试。
+
 可根据云平台支持的资源范围将权限限制在委托区域。API 字段与权限参考
 [阿里云 AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord)、
 [阿里云 DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains) 和
 [腾讯云 DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166)。
 
-## GoDaddy REST 客户端（仅 SDK）
+## GoDaddy REST 客户端
 
 包内包含使用 `httpx2` 的同步 GoDaddy Domains v3 客户端。
-GoDaddy 尚未接入 Certbot provider，不支持 `dns_alias_provider = godaddy`。
+GoDaddy Certbot provider 使用此客户端，也可直接调用其 API 方法。
 客户端使用 Personal Access Token（PAT），查询需要 `domains.domain:read`，
 写入需要 `domains.dns:update`。v3 不接受旧版 API key/secret 凭据。
 参考 [GoDaddy DNS 文档](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns)。
@@ -273,7 +310,7 @@ with GoDaddyClient("YOUR_GODADDY_PAT") as client:
 
 客户端完整读取全部分页，否则抛出异常；连接超时为 10 秒，读取、写入和连接池等待超时为
 30 秒，不自动重试或跟随重定向。异常继承 Certbot 的 `PluginError`，不包含敏感 API 消息。
-删除请求返回 404 时仍抛出 `GoDaddyAPIError`，留给后续 provider 判断。
+客户端删除请求返回 404 时仍抛出 `GoDaddyAPIError`；Certbot provider 会验证区域访问和记录缺失后再接受。
 测试环境使用 `ote=True` 和独立 OTE 凭据。使用后应关闭客户端，建议通过上下文管理器管理。
 写入成功后响应丢失可能留下记录，因此不要盲目重试写入。
 Python 3.9 安装 HTTPX2 2.0；Python 3.10–3.14 可使用更新的 2.x 版本。

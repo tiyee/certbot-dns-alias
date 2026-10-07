@@ -3,7 +3,7 @@
 English | [Simplified Chinese](README.zh-CN.md)
 
 A Certbot DNS-01 plugin that manages TXT validation records through CNAME delegation
-with Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare.
+with Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy.
 
 **Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
 
@@ -19,14 +19,14 @@ Create a CNAME record in the DNS zone of the domain you want to secure:
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, or Cloudflare. The plugin follows
+Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, Cloudflare, or GoDaddy. The plugin follows
 the CNAME chain, adds the challenge's TXT value at the final target `example-com.delegate.example.net`,
 waits for DNS propagation, and cleans up using the saved record ID when validation finishes.
 The original domain can use any DNS provider; the plugin only needs API credentials for the
 target's managed zone.
 
 - Supports multiple CNAME hops, wildcard certificates, and multiple domains in one certificate.
-- Uses Alibaba Cloud, Tencent Cloud, or Cloudflare individually,
+- Uses Alibaba Cloud, Tencent Cloud, Cloudflare, or GoDaddy individually,
   or any combination in one request with `auto` mode.
 - Selects the longest matching DNS suffix from managed zones, respecting label boundaries and
   supporting names such as `example.co.uk` and separately hosted subdomains.
@@ -45,7 +45,7 @@ Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following comb
 | 3.10–3.13 | Supported | Supported |
 | 3.14 | Older josepy cannot be imported | Supported |
 
-All three provider SDKs are installed with the plugin.
+The three official provider SDKs and the bundled GoDaddy REST client are installed with the plugin.
 
 ## Installation
 
@@ -150,6 +150,31 @@ Cloudflare TXT record TTL is `1` (automatic) or 60–86400 seconds (30-second mi
 The plugin's default `600` is valid. Keep delegation CNAME records in DNS-only mode so public
 resolvers can follow them; Cloudflare proxying or CNAME flattening can hide the CNAME.
 
+### GoDaddy
+
+```ini
+dns_alias_provider = godaddy
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = delegate.example.net
+```
+
+The plugin uses the bundled GoDaddy Domains v3 client and a Personal Access Token (PAT)
+at `https://api.godaddy.com`. Legacy API key/secret credentials are not supported.
+The token needs `domains.domain:read` for queries and `domains.dns:update` for writes.
+TXT TTL must be 600–86400 seconds; the plugin's default `600` is valid.
+
+`dns_alias_godaddy_zones` is an optional allowlist that skips registered-domain discovery.
+Use it for delegated subdomains or DNS zones not included in the account's registered domains.
+When omitted, the plugin enumerates all registered domains and verifies DNS API access and
+an apex SOA record for each candidate. Only candidates with an apex SOA are eligible.
+Any API failure or incomplete pagination stops discovery without caching partial results;
+if your account includes domains whose DNS is inaccessible, configure an explicit zone list.
+Ensure the delegated zone is served by GoDaddy's authoritative nameservers.
+
+Optional setting: `dns_alias_godaddy_ote = true` selects `https://api.ote-godaddy.com` with
+separate OTE credentials. The default is `false` (production). This setting selects the
+GoDaddy API environment independently of Certbot's `--staging` ACME environment.
+
 ### Using multiple providers
 
 ```ini
@@ -162,6 +187,8 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
 dns_alias_cloudflare_api_token = YOUR_API_TOKEN
 dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = gd-delegate.example.net
 ```
 
 For example:
@@ -181,7 +208,8 @@ All `*_zones` settings are optional. Separate multiple zones with commas, for ex
 domain discovery API. Use actual zone names hosted by the cloud provider, rather than complete
 TXT hostnames. For Cloudflare, an explicit zone list also requires IDs as described above.
 When both Cloudflare zone settings are omitted, or for other providers when `*_zones` is omitted,
-the plugin discovers all zones visible to the credentials.
+the plugin discovers zones visible to the credentials. GoDaddy discovery starts with
+registered domains and verifies their DNS API access as described above.
 Currently, one credential account is supported per provider.
 
 ## Issuance and renewal
@@ -272,16 +300,26 @@ Restrict the token's zone resources to the delegated zones. See
 [Cloudflare DNS records](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/)
 and [zone discovery](https://developers.cloudflare.com/api/python/resources/zones/methods/list/).
 
+GoDaddy Personal Access Tokens require:
+
+- `domains.domain:read` for registered-domain discovery and DNS record queries
+- `domains.dns:update` for creating and deleting individual TXT records
+
+The plugin uses Domains v3 with the bundled REST client. See
+[GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
+A cleanup 404 is accepted only after a complete TXT query confirms the saved record ID is
+absent from the saved zone. Inaccessible or missing zones remain cleanup errors and can be retried.
+
 Restrict permissions to delegated zones where the cloud provider supports resource scoping.
 For API fields and permissions, see
 [Alibaba Cloud AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord),
 [Alibaba Cloud DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains), and
 [Tencent Cloud DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166).
 
-## GoDaddy REST client (SDK only)
+## GoDaddy REST client
 
 The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
-GoDaddy is not yet a selectable Certbot provider; `dns_alias_provider = godaddy` is not supported.
+The GoDaddy Certbot provider uses this client; it is also available for direct API calls.
 The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
 `domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
 See [GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
@@ -303,7 +341,8 @@ Registered domain enumeration does not establish that a domain's DNS is hosted o
 The client reads all pages or raises, uses a 10-second connection timeout and 30-second
 read/write/pool timeouts, and performs no automatic retries or redirects. Errors subclass
 Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 remains a
-`GoDaddyAPIError` for the future provider to classify. Use `ote=True` with separate OTE credentials
+`GoDaddyAPIError`; the Certbot provider verifies zone access and record absence before accepting it.
+Use `ote=True` with separate OTE credentials
 for the test environment. Close the client after use, preferably with a context manager.
 Lost responses after successful writes can leave records behind; do not blindly retry writes.
 Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.

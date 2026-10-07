@@ -34,7 +34,8 @@ class Authenticator(DNSAuthenticator):
     """Place each ACME TXT value in its final CNAME target's managed zone."""
 
     description = (
-        "DNS-01 with CNAME delegation to Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare."
+        "DNS-01 with CNAME delegation to Alibaba Cloud DNS, Tencent Cloud DNSPod, "
+        "Cloudflare, or GoDaddy."
     )
     ttl = 600
 
@@ -65,8 +66,8 @@ class Authenticator(DNSAuthenticator):
     def more_info(self) -> str:
         return (
             "Follows _acme-challenge CNAME chains and manages individual TXT records "
-            "in Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare. "
-            "Select aliyun, tencent, cloudflare, or auto "
+            "in Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy. "
+            "Select aliyun, tencent, cloudflare, godaddy, or auto "
             "in the credentials file. Cleanup uses saved record IDs and delegation targets."
         )
 

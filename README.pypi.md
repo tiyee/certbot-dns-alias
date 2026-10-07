@@ -3,7 +3,7 @@
 English | [Simplified Chinese](https://github.com/tiyee/certbot-dns-alias/blob/master/README.zh-CN.md)
 
 A Certbot DNS-01 plugin with CNAME delegation that automatically creates and cleans up
-TXT validation records on Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare.
+TXT validation records on Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy.
 
 **Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
 
@@ -20,7 +20,7 @@ using a CNAME:
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, or Cloudflare. When requesting
+Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, Cloudflare, or GoDaddy. When requesting
 a certificate, the plugin:
 
 1. Follows the CNAME chain from `_acme-challenge.example.com` to its final target.
@@ -145,6 +145,31 @@ Cloudflare TXT record TTL is `1` (automatic) or 60–86400 seconds (30-second mi
 The plugin's default `600` is valid. Keep delegation CNAME records in DNS-only mode so public
 resolvers can follow them; Cloudflare proxying or CNAME flattening can hide the CNAME.
 
+### GoDaddy
+
+```ini
+dns_alias_provider = godaddy
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = delegate.example.net
+```
+
+The plugin uses the bundled GoDaddy Domains v3 client and a Personal Access Token (PAT)
+at `https://api.godaddy.com`. Legacy API key/secret credentials are not supported.
+The token needs `domains.domain:read` for queries and `domains.dns:update` for writes.
+TXT TTL must be 600–86400 seconds; the plugin's default `600` is valid.
+
+`dns_alias_godaddy_zones` is an optional allowlist that skips registered-domain discovery.
+Use it for delegated subdomains or DNS zones not included in the account's registered domains.
+When omitted, the plugin enumerates all registered domains and verifies DNS API access and
+an apex SOA record for each candidate. Only candidates with an apex SOA are eligible.
+Any API failure or incomplete pagination stops discovery without caching partial results;
+if your account includes domains whose DNS is inaccessible, configure an explicit zone list.
+Ensure the delegated zone is served by GoDaddy's authoritative nameservers.
+
+Optional setting: `dns_alias_godaddy_ote = true` selects `https://api.ote-godaddy.com` with
+separate OTE credentials. The default is `false` (production). This setting selects the
+GoDaddy API environment independently of Certbot's `--staging` ACME environment.
+
 ### Using multiple providers
 
 ```ini
@@ -157,6 +182,8 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
 dns_alias_cloudflare_api_token = YOUR_API_TOKEN
 dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = gd-delegate.example.net
 ```
 
 Configure a delegation target for each domain:
@@ -177,6 +204,8 @@ visible to the credentials. Cloudflare uses `dns_alias_cloudflare_zone_ids` to s
 explicit `dns_alias_cloudflare_zones` also requires IDs as described above. The plugin selects
 the longest matching DNS suffix. If the same matching zone belongs to multiple providers,
 adjust the zone lists or select a single provider to resolve the ambiguity.
+
+GoDaddy discovery starts with registered domains and verifies their DNS API access as described above.
 
 ### API permissions
 
@@ -202,6 +231,16 @@ Cloudflare API Tokens require:
 Restrict the token's zone resources to the delegated zones. See
 [Cloudflare DNS records](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/)
 and [zone discovery](https://developers.cloudflare.com/api/python/resources/zones/methods/list/).
+
+GoDaddy Personal Access Tokens require:
+
+- `domains.domain:read` for registered-domain discovery and DNS record queries
+- `domains.dns:update` for creating and deleting individual TXT records
+
+The plugin uses Domains v3 with the bundled REST client. See
+[GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
+A cleanup 404 is accepted only after a complete TXT query confirms the saved record ID is
+absent from the saved zone. Inaccessible or missing zones remain cleanup errors and can be retried.
 
 ## Requesting a certificate
 
@@ -256,10 +295,10 @@ Creation state is stored only in the current Certbot process. Forced termination
 response after a successful creation, or a cleanup failure may leave TXT records behind in
 the delegated zone; remove these manually.
 
-## GoDaddy REST client (SDK only)
+## GoDaddy REST client
 
 The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
-GoDaddy is not yet a selectable Certbot provider; `dns_alias_provider = godaddy` is not supported.
+The GoDaddy Certbot provider uses this client; it is also available for direct API calls.
 The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
 `domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
 See [GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
@@ -281,7 +320,8 @@ Registered domain enumeration does not establish that a domain's DNS is hosted o
 The client reads all pages or raises, uses a 10-second connection timeout and 30-second
 read/write/pool timeouts, and performs no automatic retries or redirects. Errors subclass
 Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 remains a
-`GoDaddyAPIError` for the future provider to classify. Use `ote=True` with separate OTE credentials
+`GoDaddyAPIError`; the Certbot provider verifies zone access and record absence before accepting it.
+Use `ote=True` with separate OTE credentials
 for the test environment. Close the client after use, preferably with a context manager.
 Lost responses after successful writes can leave records behind; do not blindly retry writes.
 Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.

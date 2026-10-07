@@ -11,6 +11,7 @@ from certbot_dns_alias.dns import normalize_name
 from certbot_dns_alias.providers.aliyun import AliyunDNSProvider
 from certbot_dns_alias.providers.base import DNSProvider, ZoneRouter
 from certbot_dns_alias.providers.cloudflare import CloudflareDNSProvider
+from certbot_dns_alias.providers.godaddy import GoDaddyDNSProvider
 from certbot_dns_alias.providers.tencent import TencentDNSProvider
 
 
@@ -25,8 +26,10 @@ def setting(credentials: CredentialsConfiguration, key: str, default: str = "") 
 
 def provider_names(credentials: CredentialsConfiguration) -> list[str]:
     mode = setting(credentials, "provider").lower()
-    if mode not in {"aliyun", "tencent", "cloudflare", "auto"}:
-        raise errors.PluginError("dns_alias_provider must be aliyun, tencent, cloudflare, or auto")
+    if mode not in {"aliyun", "tencent", "cloudflare", "godaddy", "auto"}:
+        raise errors.PluginError(
+            "dns_alias_provider must be aliyun, tencent, cloudflare, godaddy, or auto"
+        )
     required = {
         "aliyun": {
             "aliyun_access_key_id": "Alibaba Cloud AccessKey ID",
@@ -37,6 +40,7 @@ def provider_names(credentials: CredentialsConfiguration) -> list[str]:
             "tencent_secret_key": "Tencent Cloud SecretKey",
         },
         "cloudflare": {"cloudflare_api_token": "Cloudflare API Token"},
+        "godaddy": {"godaddy_api_token": "GoDaddy Personal Access Token"},
     }
     names = (
         [mode]
@@ -113,9 +117,22 @@ def validate_credentials(credentials: CredentialsConfiguration) -> None:
             "aliyun": ["aliyun_region_id", "aliyun_security_token"],
             "tencent": ["tencent_token"],
             "cloudflare": [],
+            "godaddy": [],
         }[name]
         for key in optional:
             setting(credentials, key)
+        if name == "godaddy":
+            godaddy_ote(credentials)
+            token = setting(credentials, "godaddy_api_token")
+            if not all("!" <= character <= "~" for character in token):
+                raise errors.PluginError("dns_alias_godaddy_api_token must be a valid PAT")
+
+
+def godaddy_ote(credentials: CredentialsConfiguration) -> bool:
+    value = setting(credentials, "godaddy_ote", "false").lower()
+    if value not in {"true", "false"}:
+        raise errors.PluginError("dns_alias_godaddy_ote must be true or false")
+    return value == "true"
 
 
 def build_router(credentials: CredentialsConfiguration) -> ZoneRouter:
@@ -142,9 +159,13 @@ def build_router(credentials: CredentialsConfiguration) -> ZoneRouter:
                 setting(credentials, "tencent_secret_key"),
                 token=setting(credentials, "tencent_token") or None,
             )
-        else:
+        elif name == "cloudflare":
             providers[name] = CloudflareDNSProvider(
                 setting(credentials, "cloudflare_api_token"),
                 zone_ids=cloudflare_zone_ids(credentials),
+            )
+        else:
+            providers[name] = GoDaddyDNSProvider(
+                setting(credentials, "godaddy_api_token"), ote=godaddy_ote(credentials)
             )
     return ZoneRouter(providers, zones)
