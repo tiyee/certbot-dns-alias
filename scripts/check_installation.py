@@ -87,6 +87,8 @@ def main() -> None:
             "uv",
             "pip",
             "install",
+            # Local wheels may be rebuilt without changing their development version.
+            "--no-cache",
             "--python",
             str(python),
             "--no-index",

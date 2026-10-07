@@ -278,6 +278,36 @@ For API fields and permissions, see
 [Alibaba Cloud DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains), and
 [Tencent Cloud DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166).
 
+## GoDaddy REST client (SDK only)
+
+The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
+GoDaddy is not yet a selectable Certbot provider; `dns_alias_provider = godaddy` is not supported.
+The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
+`domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
+See [GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
+
+```python
+from certbot_dns_alias.sdk.godaddy import GoDaddyClient
+
+with GoDaddyClient("YOUR_GODADDY_PAT") as client:
+    records = client.list_records("example.com", type="TXT", name="_acme-challenge")
+```
+
+`list_domains()` and `get_domain()` return domain identities, status, and nameservers.
+`list_records()` returns `DNSRecord` objects, including `record_id`, relative `name`, `type`,
+`data`, and `ttl`. `create_record(zone, record)` and
+`replace_record(zone, record_id, record)` accept a `DNSRecord` and return the server's record;
+`delete_record(zone, record_id)` deletes only that ID. TXT TTLs must be 600–86400 seconds.
+Registered domain enumeration does not establish that a domain's DNS is hosted on GoDaddy.
+
+The client reads all pages or raises, uses a 10-second connection timeout and 30-second
+read/write/pool timeouts, and performs no automatic retries or redirects. Errors subclass
+Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 remains a
+`GoDaddyAPIError` for the future provider to classify. Use `ote=True` with separate OTE credentials
+for the test environment. Close the client after use, preferably with a context manager.
+Lost responses after successful writes can leave records behind; do not blindly retry writes.
+Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

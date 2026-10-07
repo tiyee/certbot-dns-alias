@@ -249,6 +249,35 @@ Cloudflare API Token 需要：
 [阿里云 DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains) 和
 [腾讯云 DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166)。
 
+## GoDaddy REST 客户端（仅 SDK）
+
+包内包含使用 `httpx2` 的同步 GoDaddy Domains v3 客户端。
+GoDaddy 尚未接入 Certbot provider，不支持 `dns_alias_provider = godaddy`。
+客户端使用 Personal Access Token（PAT），查询需要 `domains.domain:read`，
+写入需要 `domains.dns:update`。v3 不接受旧版 API key/secret 凭据。
+参考 [GoDaddy DNS 文档](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns)。
+
+```python
+from certbot_dns_alias.sdk.godaddy import GoDaddyClient
+
+with GoDaddyClient("YOUR_GODADDY_PAT") as client:
+    records = client.list_records("example.com", type="TXT", name="_acme-challenge")
+```
+
+`list_domains()` 和 `get_domain()` 返回域名标识、状态与域名服务器。
+`list_records()` 返回 `DNSRecord` 对象，包含 `record_id`、相对名称 `name`、`type`、
+`data` 和 `ttl`。`create_record(zone, record)` 与
+`replace_record(zone, record_id, record)` 接受 `DNSRecord`，并返回服务端记录；
+`delete_record(zone, record_id)` 仅删除该 ID 对应的记录。TXT TTL 必须为 600–86400 秒。
+枚举已注册域名并不能证明该域名的 DNS 托管在 GoDaddy。
+
+客户端完整读取全部分页，否则抛出异常；连接超时为 10 秒，读取、写入和连接池等待超时为
+30 秒，不自动重试或跟随重定向。异常继承 Certbot 的 `PluginError`，不包含敏感 API 消息。
+删除请求返回 404 时仍抛出 `GoDaddyAPIError`，留给后续 provider 判断。
+测试环境使用 `ote=True` 和独立 OTE 凭据。使用后应关闭客户端，建议通过上下文管理器管理。
+写入成功后响应丢失可能留下记录，因此不要盲目重试写入。
+Python 3.9 安装 HTTPX2 2.0；Python 3.10–3.14 可使用更新的 2.x 版本。
+
 ## License
 
 MIT，见 [LICENSE](LICENSE)。
