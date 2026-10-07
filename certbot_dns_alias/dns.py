@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 def normalize_name(value: str) -> str:
     """Return an absolute, lower-case ASCII DNS name without its trailing dot."""
     try:
-        name = dns.name.from_text(value.strip()).canonicalize()
+        # Non-transitional IDNA2008 preserves distinct names such as faß.de and fass.de.
+        # The practical codec also permits ASCII service labels like _acme-challenge.
+        name = dns.name.from_text(value.strip(), idna_codec=dns.name.IDNA_2008).canonicalize()
         if name == dns.name.root or any(
             not re.fullmatch(rb"[a-z0-9_-]+", label) for label in name.labels[:-1]
         ):

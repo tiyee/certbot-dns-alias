@@ -4,16 +4,16 @@ build-backend = "hatchling.build"
 
 [project]
 name = "certbot-dns-alias"
-version = "0.1.3"
-description = "Certbot DNS-01 plugin with CNAME delegation for Alibaba Cloud DNS and Tencent Cloud DNSPod"
+version = "1.0.0"
+description = "Certbot DNS-01 plugin with CNAME delegation for Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, and GoDaddy"
 readme = "README.pypi.md"
 requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "tiyee", email = "tiyee@live.com"}]
-keywords = ["certbot", "dns-01", "acme", "cname", "aliyun", "tencent", "dnspod"]
+keywords = ["certbot", "dns-01", "acme", "cname", "aliyun", "tencent", "dnspod", "cloudflare", "godaddy"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Plugins",
     "Intended Audience :: System Administrators",
     "Operating System :: OS Independent",
@@ -28,42 +28,67 @@ classifiers = [
 ]
 dependencies = [
     "certbot>=3,<4; python_version < '3.10'",
-    "certbot>=3,<6; python_version >= '3.10' and python_version < '3.14'",
+    "certbot>=3,<6,!=4.*; python_version >= '3.10' and python_version < '3.14'",
     # Certbot 3's josepy 1.x cannot import on Python 3.14 (PEP 649).
     "certbot>=5,<6; python_version >= '3.14'",
-    "acme>=3,<6",
-    # Old josepy uses APIs removed in PyOpenSSL 25.
-    "pyopenssl<25; python_version < '3.10'",
+    "acme>=3,<6,!=4.*",
+    # Older PyOpenSSL lacks compatible cryptography bounds; 25 removes josepy's X509Req.
+    "pyopenssl>=24.3,<25; python_version < '3.10'",
     "importlib-metadata>=4.6,<9; python_version < '3.10'",
-    "dnspython>=2.6,<3",
+    "dnspython>=2.6.1,<3",
+    # Required by dnspython's non-transitional IDNA2008 codec.
+    "idna>=3.7,<4",
     "alibabacloud-alidns20150109>=3.0,<5",
     "alibabacloud-tea-openapi>=0.3,<1",
     "alibabacloud-tea-util>=0.3,<1",
     "tencentcloud-sdk-python-dnspod>=3.1.130,<4",
+    "cloudflare>=4,<5",
+    "httpx>=0.27,<1",
+    # HTTPX2 2.0 retains Python 3.9 support; newer 2.x releases require Python 3.10.
+    "httpx2>=2,<3",
+]
+
+[project.optional-dependencies]
+# Opt in on every Certbot 3 host; do not constrain modern hosts to old TLS dependencies.
+certbot3 = [
+    "certbot>=3,<4; python_version < '3.14'",
+    "acme>=3,<4; python_version < '3.14'",
+    "pyopenssl>=24.3,<25; python_version < '3.14'",
 ]
 
 [project.urls]
 Homepage = "https://github.com/tiyee/certbot-dns-alias"
 Repository = "https://github.com/tiyee/certbot-dns-alias"
 Issues = "https://github.com/tiyee/certbot-dns-alias/issues"
+Changelog = "https://github.com/tiyee/certbot-dns-alias/blob/master/CHANGELOG.md"
+Security = "https://github.com/tiyee/certbot-dns-alias/blob/master/SECURITY.md"
 
 [project.entry-points."certbot.plugins"]
 dns-alias = "certbot_dns_alias.dns_alias:Authenticator"
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "pytest-cov>=5,<8", "ruff>=0.11,<1", "tox>=4.28,<5", "tox-uv>=1.26,<2", "twine>=6,<7", "tomli>=2,<3; python_version < '3.11'"]
+dev = ["certbot>=5,<6; python_version >= '3.10'", "pytest>=8,<10", "pytest-cov>=5,<8", "ruff>=0.11,<1", "tox>=4.28,<5", "tox-uv>=1.26,<2", "twine>=6,<7", "tomli>=2,<3; python_version < '3.11'"]
+
+[tool.uv]
+# Keep the default development host modern; legacy hosts are exercised by tox.
+conflicts = [[{ extra = "certbot3" }, { group = "dev" }]]
 
 [tool.hatch.build.targets.wheel]
 packages = ["certbot_dns_alias"]
 core-metadata-version = "2.4"
 
 [tool.hatch.build.targets.sdist]
-include = ["/certbot_dns_alias", "/tests", "/examples", "/scripts", "/README.md", "/README.pypi.md", "/LICENSE", "/pyproject.toml", "/tox.ini", "/uv.lock"]
+include = ["/certbot_dns_alias", "/tests", "/examples", "/scripts", "/README.md", "/README.zh-CN.md", "/README.pypi.md", "/SECURITY.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml", "/tox.ini", "/uv.lock"]
 core-metadata-version = "2.4"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+
+[tool.coverage.report]
+# The pre-release baseline is 97.53%; enforce it without integer rounding.
+fail_under = 97.5
+precision = 2
 
 [tool.ruff]
 target-version = "py39"

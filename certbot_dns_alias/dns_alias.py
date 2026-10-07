@@ -1,4 +1,4 @@
-"""Certbot DNS authenticator with CNAME delegation to Aliyun and DNSPod."""
+"""Certbot DNS authenticator with CNAME delegation to managed DNS providers."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+import dns.exception
 import dns.resolver
 from certbot import errors
 from certbot.plugins import dns_common
@@ -33,7 +34,10 @@ class _RecordLease:
 class Authenticator(DNSAuthenticator):
     """Place each ACME TXT value in its final CNAME target's managed zone."""
 
-    description = "DNS-01 with CNAME delegation to Alibaba Cloud DNS or Tencent Cloud DNSPod."
+    description = (
+        "DNS-01 with CNAME delegation to Alibaba Cloud DNS, Tencent Cloud DNSPod, "
+        "Cloudflare, or GoDaddy."
+    )
     ttl = 600
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -63,7 +67,8 @@ class Authenticator(DNSAuthenticator):
     def more_info(self) -> str:
         return (
             "Follows _acme-challenge CNAME chains and manages individual TXT records "
-            "in Alibaba Cloud DNS or Tencent Cloud DNSPod. Select aliyun, tencent, or auto "
+            "in Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy. "
+            "Select aliyun, tencent, cloudflare, godaddy, or auto "
             "in the credentials file. Cleanup uses saved record IDs and delegation targets."
         )
 
@@ -80,17 +85,27 @@ class Authenticator(DNSAuthenticator):
         if propagation is None or propagation < 0:
             raise errors.PluginError("--dns-alias-propagation-seconds must be non-negative")
 
-        resolver = dns.resolver.Resolver()
-        if self.conf("resolvers"):
+        addresses = None
+        configured_resolvers = self.conf("resolvers")
+        if configured_resolvers is not None:
             try:
-                resolver.nameservers = [
+                addresses = [
                     str(ipaddress.ip_address(address.strip()))
-                    for address in self.conf("resolvers").split(",")
+                    for address in configured_resolvers.split(",")
                 ]
             except ValueError as exc:
                 raise errors.PluginError(
                     "--dns-alias-resolvers must be comma-separated IPv4/IPv6 addresses"
                 ) from exc
+        try:
+            resolver = dns.resolver.Resolver(configure=addresses is None)
+            if addresses is not None:
+                resolver.nameservers = addresses
+        except (dns.exception.DNSException, OSError, ValueError):
+            raise errors.PluginError(
+                "Unable to initialize DNS resolvers; check system DNS configuration "
+                "or set --dns-alias-resolvers to IPv4/IPv6 addresses"
+            ) from None
         self._resolver = CnameResolver(
             resolver,
             max_depth=self.conf("cname-max-depth"),

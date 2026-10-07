@@ -1,9 +1,12 @@
+import socket
 from types import SimpleNamespace
 from unittest.mock import Mock
 
 import dns.exception
+import dns.flags
 import dns.message
 import dns.name
+import dns.query
 import dns.rcode
 import dns.resolver
 import dns.rrset
@@ -31,6 +34,9 @@ def answer(owner="a.example.com", target=None):
     [
         ("_ACME-CHALLENGE.Example.COM.", "_acme-challenge.example.com"),
         ("例子.测试", "xn--fsqu00a.xn--0zwm56d"),
+        ("faß.de", "xn--fa-hia.de"),
+        ("_ACME-CHALLENGE.Faß.DE.", "_acme-challenge.xn--fa-hia.de"),
+        ("_acme-challenge.xn--fa-hia.de", "_acme-challenge.xn--fa-hia.de"),
     ],
 )
 def test_normalize(input_name, expected):
@@ -48,6 +54,38 @@ def test_relative_name_and_suffix_boundary():
     assert relative_name("example.co.uk", "example.co.uk.") == "@"
     with pytest.raises(errors.PluginError, match="outside zone"):
         relative_name("badexample.com", "example.com")
+
+
+def test_idna2008_relative_name_preserves_distinct_zones():
+    assert relative_name("_acme-challenge.xn--fa-hia.de", "faß.de") == "_acme-challenge"
+    with pytest.raises(errors.PluginError, match="outside zone"):
+        relative_name("_acme-challenge.fass.de", "faß.de")
+
+
+def test_truncated_udp_response_falls_back_to_tcp(monkeypatch):
+    # Exercise real DNS wire parsing and fallback. dnspython 2.6.0 swallowed
+    # Truncated when ignore_errors=True (as used by its resolver).
+    query = dns.message.make_query("_acme-challenge.example.com.", "CNAME")
+    truncated = dns.message.make_response(query)
+    truncated.flags |= dns.flags.TC
+    complete = dns.message.make_response(query)
+    source = ("192.0.2.1", 53)
+    receive = Mock(side_effect=[(truncated.to_wire(), source), dns.exception.Timeout()])
+    tcp = Mock(return_value=complete)
+    monkeypatch.setattr(dns.query, "send_udp", Mock())
+    monkeypatch.setattr(dns.query, "_udp_recv", receive)
+    monkeypatch.setattr(dns.query, "tcp", tcp)
+    result, used_tcp = dns.query.udp_with_fallback(
+        query,
+        source[0],
+        timeout=1,
+        udp_sock=SimpleNamespace(family=socket.AF_INET),
+        ignore_errors=True,
+    )
+    assert result is complete
+    assert used_tcp
+    assert receive.call_count == 1
+    assert tcp.call_count == 1
 
 
 def test_multihop_and_exact_depth():

@@ -1,89 +1,111 @@
 # certbot-dns-alias
 
-支持 CNAME 委托的 Certbot DNS-01 插件，可在阿里云 DNS 或腾讯云 DNSPod 自动添加和清理 TXT 验证记录。
+English | [Simplified Chinese](https://github.com/tiyee/certbot-dns-alias/blob/master/README.zh-CN.md)
 
-**支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
+A Certbot DNS-01 plugin with CNAME delegation that automatically creates and cleans up
+TXT validation records on Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy.
 
-提供两个安装名称：`certbot-dns-alias` 和 `certbot-dns-delegation`。
-后者是安装别名，会自动安装同版本的主包；两种方式都使用 Certbot 认证器 `dns-alias`。
+**Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
 
-## 工作原理
+Two installation names are available: `certbot-dns-alias` and `certbot-dns-delegation`.
+The latter is an installation alias that automatically installs the same version of the main
+package. Both use the Certbot authenticator `dns-alias`.
 
-将业务域名的 `_acme-challenge` 记录通过 CNAME 指向集中管理的验证域名：
+## How it works
+
+Delegate your domain's `_acme-challenge` record to a centrally managed validation domain
+using a CNAME:
 
 ```dns
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-其中，`delegate.example.net` 托管在阿里云或腾讯云。申请证书时，插件：
+Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, Cloudflare, or GoDaddy. When requesting
+a certificate, the plugin:
 
-1. 跟随 `_acme-challenge.example.com` 的 CNAME 链，找到最终目标。
-2. 根据最终目标所属的托管区域，选择对应的云服务商。
-3. 在 `example-com.delegate.example.net` 添加本次验证需要的 TXT 值。
-4. 等待 DNS 传播，由证书颁发机构完成 DNS-01 验证。
-5. 按创建时保存的记录 ID 清理临时 TXT。
+1. Follows the CNAME chain from `_acme-challenge.example.com` to its final target.
+2. Selects the cloud provider that manages the target's zone.
+3. Adds the required TXT value at `example-com.delegate.example.net`.
+4. Waits for DNS propagation so the certificate authority can complete DNS-01 validation.
+5. Cleans up the temporary TXT record using the record ID saved at creation time.
 
-业务域名可以由任意 DNS 服务商托管，只需提供最终目标区域的 API 凭据。
-支持多级 CNAME、泛域名和多域名证书，也支持一次申请中的不同域名分别委托给阿里云和腾讯云。
-插件按 TXT 值分别管理记录，保留同名记录中的其他值；复用已有的相同有效记录时，不会删除该原有记录。
+The original domain can use any DNS provider; only API credentials for the final target's
+managed zone are required. Multiple CNAME hops, wildcards, and multiple domains in one
+certificate are supported. Domains in the same request can delegate to different cloud
+providers. TXT values are managed individually, preserving other values at the same name.
+Existing valid records with the same value are reused and never deleted by the plugin.
 
-## 安装
+## Installation
 
-支持 Python **3.9–3.14**、**Certbot 3.x 和 5.x**，具体组合如下：
+Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following combinations:
 
 | Python | Certbot 3.x | Certbot 5.x |
 | --- | --- | --- |
-| 3.9 | 支持 | 上游要求 Python ≥3.10 |
-| 3.10–3.13 | 支持 | 支持 |
-| 3.14 | 旧版 josepy 无法导入 | 支持 |
+| 3.9 | Supported | Upstream requires Python ≥3.10 |
+| 3.10–3.13 | Supported | Supported |
+| 3.14 | Older josepy cannot be imported | Supported |
 
-插件由宿主 Certbot 加载，必须安装在宿主的同一 Python 环境中。
+Certbot 4.x is not supported and is excluded from the package dependencies.
+DNS names use non-transitional IDNA2008 normalization; Unicode names and their Punycode
+forms identify the same zone (for example, `faß.de` and `xn--fa-hia.de`).
 
-在已有 Certbot 的 Python 环境中安装：
+The plugin is loaded by your Certbot host and must be installed in the same Python environment.
+
+Install in the Python environment containing Certbot:
 
 ```bash
 python -m pip install certbot-dns-alias
 ```
 
-也可使用安装别名，两者任选其一即可：
+Alternatively, use the installation alias. Choose either package:
 
 ```bash
 python -m pip install certbot-dns-delegation
 ```
 
-安装别名后，认证器仍为 `dns-alias`，参数和凭据键仍使用 `dns-alias` / `dns_alias` 前缀。
+With the alias installed, the authenticator is still `dns-alias`, and options and credential
+keys still use the `dns-alias` / `dns_alias` prefixes.
 
-其中 `python` 必须是运行宿主 Certbot 的解释器。使用 uv 时可显式指定该环境：
+Here, `python` must be the interpreter running your Certbot host. With uv, specify the host
+environment explicitly:
 
 ```bash
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-插件按 Python 版本声明宿主依赖：Python 3.9 使用 Certbot 3，Python 3.14 使用 Certbot 5，
-Python 3.10–3.13 可使用 Certbot 3 或 5。
-如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
+Host dependency requirements depend on the Python version: Python 3.9 uses Certbot 3,
+Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
+To preserve an exact host version, pin it explicitly during installation. For example,
+for a `3.0.0` host. **Every Certbot 3 host must use the `certbot3` extra** to constrain
+ACME to 3.x and pyOpenSSL to `>=24.3,<25`, including on Python 3.10–3.13:
 
 ```bash
-python -m pip install 'certbot==3.0.0' certbot-dns-alias
+python -m pip install 'certbot==3.0.0' 'certbot-dns-alias[certbot3]'
 ```
 
-已有宿主的其他依赖版本约束，可通过该部署环境的 constraints 文件一并保留。
+The alias supports the same extra: `certbot-dns-delegation[certbot3]`.
+Default installations on Certbot 5 do not impose this legacy TLS dependency cap.
+The extra is a compatibility option, not a security update for old dependencies; use a
+maintained Certbot 5 host when possible. The extra's constraints apply on Python 3.9–3.13;
+Python 3.14 supports only Certbot 5.
 
-确认插件可用：
+Use your deployment's constraints file to preserve any other host dependency requirements.
+
+Check that the plugin is available:
 
 ```bash
 certbot plugins --text
 ```
 
-## 凭据配置
+## Credentials
 
-创建 `credentials.ini`，使用不带 section 的 `key = value` 格式，并设置文件权限：
+Create `credentials.ini` with `key = value` entries and no INI section. Restrict file permissions:
 
 ```bash
 chmod 600 credentials.ini
 ```
 
-### 阿里云
+### Alibaba Cloud
 
 ```ini
 dns_alias_provider = aliyun
@@ -92,10 +114,10 @@ dns_alias_aliyun_access_key_secret = YOUR_ACCESS_KEY_SECRET
 dns_alias_aliyun_zones = delegate.example.net
 ```
 
-可选配置：`dns_alias_aliyun_region_id`（默认 `cn-hangzhou`）和
-`dns_alias_aliyun_security_token`（临时 STS 凭据）。
+Optional settings: `dns_alias_aliyun_region_id` (default: `cn-hangzhou`) and
+`dns_alias_aliyun_security_token` (temporary STS credentials).
 
-### 腾讯云 DNSPod
+### Tencent Cloud DNSPod
 
 ```ini
 dns_alias_provider = tencent
@@ -104,9 +126,62 @@ dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = delegate.example.net
 ```
 
-使用腾讯云 SecretId / SecretKey，可通过 `dns_alias_tencent_token` 配置临时会话凭据。
+Use Tencent Cloud SecretId / SecretKey credentials. Set `dns_alias_tencent_token` for temporary
+session credentials.
 
-### 同时使用阿里云和腾讯云
+### Cloudflare
+
+```ini
+dns_alias_provider = cloudflare
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+```
+
+Use an API Token with `Zone:DNS:Edit` and `Zone:Zone:Read` for the delegated zones.
+The plugin uses `https://api.cloudflare.com/client/v4` and discovers zones visible to the token.
+Global API keys are not supported.
+
+To skip zone discovery and avoid the `Zone:Zone:Read` permission, provide zone-name:ID pairs:
+
+```ini
+dns_alias_cloudflare_zone_ids = delegate.example.net:0123456789abcdef0123456789abcdef
+```
+
+Replace the placeholder with the 32-character Zone ID from the Cloudflare dashboard.
+Separate multiple pairs with commas. This mapping restricts eligible zones to the listed names.
+You may further restrict them with `dns_alias_cloudflare_zones`; every listed name must have
+an entry in `dns_alias_cloudflare_zone_ids`. Explicit Cloudflare zone names without IDs are
+rejected because skipping discovery requires their IDs.
+
+Cloudflare TXT record TTL is `1` (automatic) or 60–86400 seconds (30-second minimum for Enterprise).
+The plugin's default `600` is valid. Keep delegation CNAME records in DNS-only mode so public
+resolvers can follow them; Cloudflare proxying or CNAME flattening can hide the CNAME.
+
+### GoDaddy
+
+```ini
+dns_alias_provider = godaddy
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = delegate.example.net
+```
+
+The plugin uses the bundled GoDaddy Domains v3 client and a Personal Access Token (PAT)
+at `https://api.godaddy.com`. Legacy API key/secret credentials are not supported.
+The token needs `domains.domain:read` for queries and `domains.dns:update` for writes.
+TXT TTL must be 600–86400 seconds; the plugin's default `600` is valid.
+
+`dns_alias_godaddy_zones` is an optional allowlist that skips registered-domain discovery.
+Use it for delegated subdomains or DNS zones not included in the account's registered domains.
+When omitted, the plugin enumerates all registered domains and verifies DNS API access and
+an apex SOA record for each candidate. Only candidates with an apex SOA are eligible.
+Any API failure or incomplete pagination stops discovery without caching partial results;
+if your account includes domains whose DNS is inaccessible, configure an explicit zone list.
+Ensure the delegated zone is served by GoDaddy's authoritative nameservers.
+
+Optional setting: `dns_alias_godaddy_ote = true` selects `https://api.ote-godaddy.com` with
+separate OTE credentials. The default is `false` (production). This setting selects the
+GoDaddy API environment independently of Certbot's `--staging` ACME environment.
+
+### Using multiple providers
 
 ```ini
 dns_alias_provider = auto
@@ -116,43 +191,71 @@ dns_alias_aliyun_zones = ali-delegate.example.net
 dns_alias_tencent_secret_id = YOUR_SECRET_ID
 dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
+dns_alias_godaddy_api_token = YOUR_GODADDY_PAT
+dns_alias_godaddy_zones = gd-delegate.example.net
 ```
 
-为不同业务域名设置对应的委托目标：
+Configure a delegation target for each domain:
 
 ```dns
 _acme-challenge.example.com.      300 IN CNAME example-com.ali-delegate.example.net.
 _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.example.org.
 ```
 
-在申请命令中同时传入 `-d example.com -d api.example.org` 即可。
-`auto` 至少需要一组完整的服务商密钥，也允许只配置一家。
+Pass both `-d example.com -d api.example.org` in the certificate request.
+The `auto` mode requires at least one complete set of provider credentials; configuring only
+one provider is also valid.
 
-`*_zones` 为可选配置，多个区域以逗号分隔。填写云平台实际托管区域名称，
-例如 `delegate.example.net`，而不是完整 TXT 主机名。
-配置后只使用列出的区域；省略时自动查询当前凭据可见的区域。
-插件选择最长匹配的 DNS 后缀；同一匹配区域同时出现在两家服务商中时，
-需调整区域列表或选择单一服务商以消除歧义。
+The `*_zones` settings are optional. Separate multiple zones with commas, and use actual zone
+names hosted by the cloud provider, such as `delegate.example.net`, rather than complete TXT
+hostnames. An explicit list restricts eligible zones; otherwise, the plugin discovers all zones
+visible to the credentials. Cloudflare uses `dns_alias_cloudflare_zone_ids` to skip discovery;
+explicit `dns_alias_cloudflare_zones` also requires IDs as described above. The plugin selects
+the longest matching DNS suffix. If the same matching zone belongs to multiple providers,
+adjust the zone lists or select a single provider to resolve the ambiguity.
 
-### API 权限
+GoDaddy discovery starts with registered domains and verifies their DNS API access as described above.
 
-阿里云凭据需要以下操作权限：
+### API permissions
+
+Alibaba Cloud credentials require:
 
 - `alidns:DescribeDomainRecords`
 - `alidns:AddDomainRecord`
 - `alidns:DeleteDomainRecord`
-- 未配置 `dns_alias_aliyun_zones` 时，还需要 `alidns:DescribeDomains`
+- `alidns:DescribeDomains` when `dns_alias_aliyun_zones` is not configured
 
-腾讯云凭据需要以下操作权限：
+Tencent Cloud credentials require:
 
 - `dnspod:DescribeRecordList`
 - `dnspod:CreateRecord`
 - `dnspod:DeleteRecord`
-- 未配置 `dns_alias_tencent_zones` 时，还需要 `dnspod:DescribeDomainList`
+- `dnspod:DescribeDomainList` when `dns_alias_tencent_zones` is not configured
 
-## 申请证书
+Cloudflare API Tokens require:
 
-先配置 CNAME，并确认公共 DNS 可以解析，然后运行：
+- `Zone:DNS:Edit` for listing, creating, and deleting TXT records
+- `Zone:Zone:Read` when `dns_alias_cloudflare_zone_ids` is not configured
+
+Restrict the token's zone resources to the delegated zones. See
+[Cloudflare DNS records](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/)
+and [zone discovery](https://developers.cloudflare.com/api/python/resources/zones/methods/list/).
+
+GoDaddy Personal Access Tokens require:
+
+- `domains.domain:read` for registered-domain discovery and DNS record queries
+- `domains.dns:update` for creating and deleting individual TXT records
+
+The plugin uses Domains v3 with the bundled REST client. See
+[GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
+A cleanup 404 is accepted only after a complete TXT query confirms the saved record ID is
+absent from the saved zone. Inaccessible or missing zones remain cleanup errors and can be retried.
+
+## Requesting a certificate
+
+Configure the CNAME first and ensure it resolves through public DNS, then run:
 
 ```bash
 certbot certonly \
@@ -164,34 +267,77 @@ certbot certonly \
   -d example.com -d '*.example.com'
 ```
 
-将凭据路径、邮箱和域名替换为实际值。首次使用可添加 `--staging` 验证配置，
-配置确认后去掉该参数申请正式证书。
-普通域名和其泛域名共用 `_acme-challenge` 名称，插件会同时保留各自需要的 TXT 值。
+Replace the credentials path, email address, and domains with your own values.
+Add `--staging` for an initial test, then remove it to request a production certificate.
+A domain and its wildcard share the same `_acme-challenge` name; the plugin preserves all TXT
+values needed for both challenges.
 
-### 常用参数
+### Common options
 
-| 参数 | 默认值 | 说明 |
+| Option | Default | Description |
 | --- | --- | --- |
-| `--dns-alias-credentials` | 必填 | 凭据 INI 文件路径 |
-| `--dns-alias-propagation-seconds` | `60` | 全部 TXT 添加后的传播等待时间，秒 |
-| `--dns-alias-ttl` | `600` | TXT 记录 TTL，需满足云套餐限制 |
-| `--dns-alias-cname-max-depth` | `8` | 最大 CNAME 链接数 |
-| `--dns-alias-dns-timeout` | `10` | 单次 DNS 查询总超时，秒 |
-| `--dns-alias-dns-retries` | `2` | DNS 超时或无可用服务器时的额外重试次数 |
-| `--dns-alias-resolvers` | 系统 DNS | 逗号分隔的 DNS 服务器 IPv4/IPv6 地址 |
-| `--dns-alias-require-cname` | 关闭 | 原始挑战名称没有 CNAME 时拒绝写入 |
+| `--dns-alias-credentials` | Required | Path to the credentials INI file |
+| `--dns-alias-propagation-seconds` | `60` | Propagation wait in seconds after all TXT records are ready |
+| `--dns-alias-ttl` | `600` | TXT record TTL; must satisfy the cloud plan's limits |
+| `--dns-alias-cname-max-depth` | `8` | Maximum number of CNAME hops |
+| `--dns-alias-dns-timeout` | `10` | Total timeout in seconds for each DNS query |
+| `--dns-alias-dns-retries` | `2` | Additional retries after a timeout or unavailable nameservers |
+| `--dns-alias-resolvers` | System DNS | Comma-separated IPv4/IPv6 DNS server addresses |
+| `--dns-alias-require-cname` | Disabled | Reject writes when the original challenge name has no CNAME |
 
-不启用 `--dns-alias-require-cname` 时，也允许直接在原始挑战名称所属的托管区域添加 TXT。
-TTL 与传播等待时间不同；首次创建验证主机可能受 DNS 负缓存影响，必要时提高传播等待时间。
+Without `--dns-alias-require-cname`, the plugin may also create TXT records directly in the
+managed zone of the original challenge name. TTL and propagation wait are different settings.
+Creating a validation hostname for the first time may encounter DNS negative caching;
+increase the propagation wait if needed.
 
-## 续期
+## Renewal
 
-Certbot 会保存认证器配置和凭据文件的绝对路径，使用同一运行环境执行：
+Certbot saves the authenticator configuration and the absolute credentials file path.
+Run renewal in the same environment:
 
 ```bash
 certbot renew --dry-run
 certbot renew
 ```
 
-凭据文件需长期保留，临时凭据应在过期前更新。运行账号需要有权访问 Certbot 的配置、工作和日志目录。
-如果 Certbot 进程被强制终止或云端清理失败，委托区域可能留有本次 TXT 记录，可手动删除。
+Keep the credentials file available and refresh temporary credentials before they expire.
+The account running Certbot needs access to its configuration, work, and log directories.
+Creation state is stored only in the current Certbot process. Forced termination, a lost
+response after a successful creation, or a cleanup failure may leave TXT records behind in
+the delegated zone; remove these manually.
+
+## GoDaddy REST client
+
+The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
+The GoDaddy Certbot provider uses this client; it is also available for direct API calls.
+The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
+`domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
+See [GoDaddy DNS documentation](https://developer.godaddy.com/en/docs/api-users/domains/manage/dns).
+
+```python
+from certbot_dns_alias.sdk.godaddy import GoDaddyClient
+
+with GoDaddyClient("YOUR_GODADDY_PAT") as client:
+    records = client.list_records("example.com", type="TXT", name="_acme-challenge")
+```
+
+`list_domains()` and `get_domain()` return domain identities, status, and nameservers.
+`list_records()` returns `DNSRecord` objects, including `record_id`, relative `name`, `type`,
+`data`, and `ttl`. `create_record(zone, record)` and
+`replace_record(zone, record_id, record)` accept a `DNSRecord` and return the server's record;
+`delete_record(zone, record_id)` deletes only that ID. TXT TTLs must be 600–86400 seconds.
+Registered domain enumeration does not establish that a domain's DNS is hosted on GoDaddy.
+
+The client reads all pages or raises, uses a 10-second connection timeout and 30-second
+read/write/pool timeouts, and performs no automatic retries or redirects. Errors subclass
+Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 remains a
+`GoDaddyAPIError`; the Certbot provider verifies zone access and record absence before accepting it.
+Use `ote=True` with separate OTE credentials
+for the test environment. Close the client after use, preferably with a context manager.
+Lost responses after successful writes can leave records behind; do not blindly retry writes.
+Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.
+
+## Security and release notes
+
+See the [security policy](https://github.com/tiyee/certbot-dns-alias/blob/master/SECURITY.md) for private vulnerability reporting and legacy
+host limitations, and the [changelog](https://github.com/tiyee/certbot-dns-alias/blob/master/CHANGELOG.md) for changes and upgrade notes.
