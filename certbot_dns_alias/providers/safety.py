@@ -18,8 +18,6 @@ _SDK_LOG_PREFIXES = (
     "cloudflare",
     "httpx",
     "httpcore",
-    "httpx2",
-    "httpcore2",
     "urllib3",
 )
 

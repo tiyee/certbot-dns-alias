@@ -336,7 +336,7 @@ For API fields and permissions, see
 
 ## GoDaddy REST client
 
-The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
+The package includes an internal synchronous GoDaddy Domains v3 client using `httpx`.
 The GoDaddy Certbot provider uses this client; it is also available for direct API calls.
 The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
 `domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
@@ -363,7 +363,8 @@ Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 
 Use `ote=True` with separate OTE credentials
 for the test environment. Close the client after use, preferably with a context manager.
 Lost responses after successful writes can leave records behind; do not blindly retry writes.
-Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.
+GoDaddy and Cloudflare share the same `httpx` dependency on all supported Python versions.
+Custom transports must implement `httpx.BaseTransport`, such as `httpx.MockTransport`.
 
 ## License
 

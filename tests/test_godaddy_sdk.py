@@ -1,8 +1,8 @@
-"""Exercise GoDaddy v3 request contracts through an offline HTTPX2 transport."""
+"""Exercise GoDaddy v3 request contracts through an offline HTTPX transport."""
 
 import json
 
-import httpx2
+import httpx
 import pytest
 from certbot import errors
 
@@ -60,12 +60,12 @@ def godaddy():
         response = replies.pop(0)
         if isinstance(response, Exception):
             raise response
-        if isinstance(response, httpx2.Response):
+        if isinstance(response, httpx.Response):
             return response
         status, payload = response if isinstance(response, tuple) else (200, response)
-        return httpx2.Response(status, json=payload)
+        return httpx.Response(status, json=payload)
 
-    with GoDaddyClient("secret-token", transport=httpx2.MockTransport(handle)) as client:
+    with GoDaddyClient("secret-token", transport=httpx.MockTransport(handle)) as client:
         yield client, replies, requests
 
 
@@ -77,9 +77,9 @@ def test_configuration_and_lifecycle(monkeypatch):
 
     def handle(request):
         captured.append(request)
-        return httpx2.Response(200, json=collection([]))
+        return httpx.Response(200, json=collection([]))
 
-    transport = httpx2.MockTransport(handle)
+    transport = httpx.MockTransport(handle)
     with GoDaddyClient("secret-token", ote=True, transport=transport) as client:
         assert client.list_domains() == []
         assert client._http.timeout.connect == 10
@@ -224,7 +224,7 @@ def test_optional_record_fields(godaddy, type_, extra):
 
 def test_delete_saved_id_no_body(godaddy):
     client, replies, requests = godaddy
-    replies.append(httpx2.Response(204))
+    replies.append(httpx.Response(204))
     assert client.delete_record("example.com", "saved_id-123") is None
     assert requests[0].method == "DELETE"
     assert requests[0].url.path == RECORD_PATH + "/saved_id-123"
@@ -271,10 +271,10 @@ def invoke(client, method):
 @pytest.mark.parametrize(
     "exception",
     [
-        httpx2.ConnectTimeout,
-        httpx2.ReadTimeout,
-        httpx2.WriteError,
-        httpx2.RemoteProtocolError,
+        httpx.ConnectTimeout,
+        httpx.ReadTimeout,
+        httpx.WriteError,
+        httpx.RemoteProtocolError,
     ],
 )
 def test_transport_errors_hide_sensitive_context(godaddy, method, exception):
@@ -306,14 +306,14 @@ def test_invalid_error_envelopes(godaddy, payload, code):
 
 def test_non_json_error_response(godaddy):
     client, replies, _ = godaddy
-    replies.append(httpx2.Response(502, text="secret-token validation-value"))
+    replies.append(httpx.Response(502, text="secret-token validation-value"))
     with pytest.raises(GoDaddyAPIError, match="502, HTTP_ERROR"):
         client.list_domains()
 
 
 def test_redirect_is_not_followed(godaddy):
     client, replies, requests = godaddy
-    replies.append(httpx2.Response(307, headers={"Location": "https://invalid.example"}))
+    replies.append(httpx.Response(307, headers={"Location": "https://invalid.example"}))
     with pytest.raises(GoDaddyAPIError, match="307"):
         client.create_record("example.com", DNSRecord("@", "TXT", "value", 600))
     assert len(requests) == 1
@@ -322,12 +322,12 @@ def test_redirect_is_not_followed(godaddy):
 @pytest.mark.parametrize(
     "response",
     [
-        httpx2.Response(200, text="not json"),
-        httpx2.Response(200, json=[]),
-        httpx2.Response(200, json={}),
-        httpx2.Response(200, json={"items": None, "links": []}),
-        httpx2.Response(200, json={"items": [], "links": None}),
-        httpx2.Response(200, json={"items": [], "links": [None]}),
+        httpx.Response(200, text="not json"),
+        httpx.Response(200, json=[]),
+        httpx.Response(200, json={}),
+        httpx.Response(200, json={"items": None, "links": []}),
+        httpx.Response(200, json={"items": [], "links": None}),
+        httpx.Response(200, json={"items": [], "links": [None]}),
     ],
 )
 def test_malformed_collection_responses(godaddy, response):
@@ -547,7 +547,7 @@ def test_second_page_api_failure_is_not_partial_success(godaddy):
 def test_opaque_record_id_is_encoded_as_one_path_segment(godaddy):
     client, replies, requests = godaddy
     id_ = "record:id+with/=suffix"
-    replies.append(httpx2.Response(204))
+    replies.append(httpx.Response(204))
     client.delete_record("example.com", id_)
     assert requests[0].url.raw_path == (RECORD_PATH + "/record%3Aid%2Bwith%2F%3Dsuffix").encode()
 

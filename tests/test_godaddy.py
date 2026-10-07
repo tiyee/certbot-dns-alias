@@ -8,7 +8,7 @@ import dns.message
 import dns.name
 import dns.resolver
 import dns.rrset
-import httpx2
+import httpx
 import pytest
 from acme import challenges
 from certbot import errors
@@ -56,13 +56,13 @@ def godaddy(monkeypatch):
         response = replies.pop(0)
         if isinstance(response, Exception):
             raise response
-        if isinstance(response, httpx2.Response):
+        if isinstance(response, httpx.Response):
             return response
         status, body = response if isinstance(response, tuple) else (200, response)
-        return httpx2.Response(status, json=body)
+        return httpx.Response(status, json=body)
 
     def client(*args, **kwargs):
-        result = GoDaddyClient(*args, **kwargs, transport=httpx2.MockTransport(handle))
+        result = GoDaddyClient(*args, **kwargs, transport=httpx.MockTransport(handle))
         clients.append(result)
         return result
 
@@ -343,7 +343,7 @@ def test_invalid_or_incomplete_txt_list_is_an_error(godaddy, body):
 def test_create_one_value_and_delete_saved_id(godaddy, name, ttl):
     provider, replies, requests = godaddy
     canonical = "@" if name == "@" else "xn--fiqs8s" if name == "中国" else "host"
-    replies.extend([(201, record(name=canonical, ttl=ttl)), httpx2.Response(204)])
+    replies.extend([(201, record(name=canonical, ttl=ttl)), httpx.Response(204)])
     assert provider.create_txt_record("Example.COM.", name, "token", ttl) == "created"
     provider.delete_txt_record("example.com", "created")
     assert [request.method for request in requests] == ["POST", "DELETE"]
@@ -382,7 +382,7 @@ def test_create_rejects_missing_id_or_mismatched_identity(godaddy, body):
     "failure",
     [
         (403, {"name": "FORBIDDEN", "message": "secret-token sensitive-value"}),
-        httpx2.ReadTimeout("secret-token sensitive-value"),
+        httpx.ReadTimeout("secret-token sensitive-value"),
         (503, {"name": "UNAVAILABLE"}),
     ],
 )
@@ -428,7 +428,7 @@ def test_delete_404_succeeds_only_after_complete_saved_id_absence_check(godaddy)
     [
         (404, {"name": "ZONE_NOT_FOUND"}),
         (403, {"name": "FORBIDDEN"}),
-        httpx2.ReadTimeout("sensitive-value"),
+        httpx.ReadTimeout("sensitive-value"),
         collection([], total=1),
         collection([record("saved")]),
     ],
@@ -479,7 +479,7 @@ def test_public_lifecycle_with_real_credentials_and_dns_boundary(
     monkeypatch.setattr("certbot.plugins.dns_common.sleep", sleep)
     monkeypatch.setattr("certbot.plugins.dns_common.display_util.notify", lambda message: None)
     value = dns_challenges[0].validation(dns_challenges[0].account_key)
-    replies.extend([collection([]), (201, record(data=value)), httpx2.Response(204)])
+    replies.extend([collection([]), (201, record(data=value)), httpx.Response(204)])
     responses = authenticator.perform(dns_challenges[:1])
     assert isinstance(responses[0], challenges.DNS01Response)
     assert authenticator.credentials.conf("godaddy_api_token") == "secret-token"
@@ -498,7 +498,7 @@ def test_public_lifecycle_preserves_preexisting_and_unrelated_values(lifecycle, 
             collection([record("existing", data=first)]),
             collection([record("existing", data=first), record("unrelated", data="keep-me")]),
             (201, record(data=second)),
-            httpx2.Response(204),
+            httpx.Response(204),
         ]
     )
     assert len(auth.perform(dns_challenges)) == 2
@@ -519,8 +519,8 @@ def test_public_lifecycle_creates_multiple_values_at_same_name(lifecycle, dns_ch
             (201, record("first", data=first)),
             collection([record("first", data=first)]),
             (201, record("second", data=second)),
-            httpx2.Response(204),
-            httpx2.Response(204),
+            httpx.Response(204),
+            httpx.Response(204),
         ]
     )
     auth.perform(dns_challenges)
@@ -541,7 +541,7 @@ def test_public_lifecycle_shared_value_uses_one_record_until_last_user(lifecycle
     auth, replies, requests, _ = lifecycle
     challenge = dns_challenges[0]
     value = challenge.validation(challenge.account_key)
-    replies.extend([collection([]), (201, record(data=value)), httpx2.Response(204)])
+    replies.extend([collection([]), (201, record(data=value)), httpx.Response(204)])
     auth.perform([challenge, challenge])
     assert len(requests) == 2
     auth.cleanup([challenge])
@@ -559,7 +559,7 @@ def test_public_lifecycle_cleans_only_successful_writes_after_partial_failure(
     auth, replies, requests, sleep = lifecycle
     value = dns_challenges[0].validation(dns_challenges[0].account_key)
     replies.extend(
-        [collection([]), (201, record(data=value)), collection([]), failure, httpx2.Response(204)]
+        [collection([]), (201, record(data=value)), collection([]), failure, httpx.Response(204)]
     )
     with pytest.raises(errors.PluginError):
         auth.perform(dns_challenges)
@@ -593,7 +593,7 @@ def test_public_lifecycle_retains_cleanup_state_for_retry(
     assert "secret-token" not in caplog.text
     assert value not in caplog.text
     replies.extend(
-        [(404, {"name": "NOT_FOUND"}), collection([])] if absent else [httpx2.Response(204)]
+        [(404, {"name": "NOT_FOUND"}), collection([])] if absent else [httpx.Response(204)]
     )
     auth._resolver.resolve.side_effect = AssertionError("must not resolve during cleanup")
     auth.cleanup(dns_challenges[:1])

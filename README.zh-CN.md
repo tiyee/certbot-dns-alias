@@ -306,7 +306,7 @@ GoDaddy Personal Access Token 需要：
 
 ## GoDaddy REST 客户端
 
-包内包含使用 `httpx2` 的同步 GoDaddy Domains v3 客户端。
+包内包含使用 `httpx` 的同步 GoDaddy Domains v3 客户端。
 GoDaddy Certbot provider 使用此客户端，也可直接调用其 API 方法。
 客户端使用 Personal Access Token（PAT），查询需要 `domains.domain:read`，
 写入需要 `domains.dns:update`。v3 不接受旧版 API key/secret 凭据。
@@ -331,7 +331,8 @@ with GoDaddyClient("YOUR_GODADDY_PAT") as client:
 客户端删除请求返回 404 时仍抛出 `GoDaddyAPIError`；Certbot provider 会验证区域访问和记录缺失后再接受。
 测试环境使用 `ote=True` 和独立 OTE 凭据。使用后应关闭客户端，建议通过上下文管理器管理。
 写入成功后响应丢失可能留下记录，因此不要盲目重试写入。
-Python 3.9 安装 HTTPX2 2.0；Python 3.10–3.14 可使用更新的 2.x 版本。
+所有受支持的 Python 版本中，GoDaddy 和 Cloudflare 共用同一个 `httpx` 依赖。
+自定义 transport 必须实现 `httpx.BaseTransport`，例如使用 `httpx.MockTransport`。
 
 ## License
 

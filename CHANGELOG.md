@@ -13,6 +13,12 @@ Changes apply to both `certbot-dns-alias` and `certbot-dns-delegation` unless no
 - Dependency audits of locked Python 3.9–3.14 environments, with retained JSON reports and
   release gating on Python 3.10–3.14; legacy Python 3.9 findings remain non-blocking.
 
+### Changed
+
+- Use HTTPX for the GoDaddy REST client as well as the Cloudflare SDK, removing the HTTPX2
+  dependency and its separate transport stack. Custom GoDaddy transports now use
+  `httpx.BaseTransport` and `httpx.MockTransport`.
+
 ## 1.0.0
 
 ### Added

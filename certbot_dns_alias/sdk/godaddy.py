@@ -1,4 +1,4 @@
-"""Synchronous GoDaddy Domains v3 DNS client using HTTPX2.
+"""Synchronous GoDaddy Domains v3 DNS client using HTTPX.
 
 Reference: https://developer.godaddy.com/openapi/domains-v3.json
 This client uses a Personal Access Token, not legacy sso-key credentials.
@@ -12,7 +12,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 from urllib.parse import parse_qs, quote, urljoin, urlsplit
 
-import httpx2
+import httpx
 from certbot import errors
 
 from certbot_dns_alias.dns import normalize_name
@@ -161,7 +161,7 @@ class GoDaddyClient:
     Use as a context manager or call close(). The token needs domains.domain:read
     and domains.dns:update scopes. OTE credentials and production credentials are
     separate; no environment variables can override the endpoint or authentication.
-    The optional transport is an HTTPX2 test boundary and must not retry writes.
+    The optional transport is an HTTPX test boundary and must not retry writes.
     """
 
     def __init__(
@@ -169,20 +169,20 @@ class GoDaddyClient:
         token: str,
         *,
         ote: bool = False,
-        transport: httpx2.BaseTransport | None = None,
+        transport: httpx.BaseTransport | None = None,
     ) -> None:
         if not isinstance(token, str) or not token or not all("!" <= c <= "~" for c in token):
             raise ValueError("A nonempty GoDaddy Personal Access Token is required")
         if not isinstance(ote, bool):
             raise ValueError("ote must be a boolean")
-        self._http = httpx2.Client(
+        self._http = httpx.Client(
             base_url="https://api.ote-godaddy.com" if ote else "https://api.godaddy.com",
             headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
-            timeout=httpx2.Timeout(30, connect=10),
+            timeout=httpx.Timeout(30, connect=10),
             transport=(
                 transport
                 if transport is not None
-                else httpx2.HTTPTransport(retries=0, trust_env=False)
+                else httpx.HTTPTransport(retries=0, trust_env=False)
             ),
             follow_redirects=False,
             trust_env=False,
@@ -210,7 +210,7 @@ class GoDaddyClient:
         try:
             with quiet_sdk_call():
                 response = self._http.request(method, path, params=params, json=body)
-        except httpx2.RequestError as exc:
+        except httpx.RequestError as exc:
             raise GoDaddyTransportError(
                 f"GoDaddy API transport failed ({type(exc).__name__})"
             ) from None
