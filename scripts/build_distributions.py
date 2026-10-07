@@ -40,6 +40,11 @@ def write_alias_project(source: Path, destination: Path) -> None:
     lines.extend(f"{key} = {toml_value(value)}" for key, value in project.items())
     lines.extend(["", "[project.urls]"])
     lines.extend(f"{key} = {toml_value(value)}" for key, value in main["urls"].items())
+    if main.get("optional-dependencies"):
+        lines.extend(["", "[project.optional-dependencies]"])
+        for extra in main["optional-dependencies"]:
+            dependency = f"{main['name']}[{extra}]=={main['version']}"
+            lines.append(f"{extra} = {toml_value([dependency])}")
     lines.extend(
         [
             "",

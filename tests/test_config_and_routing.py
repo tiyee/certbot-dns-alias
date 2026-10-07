@@ -1,5 +1,7 @@
+from io import StringIO
 from unittest.mock import Mock
 
+import dns.resolver
 import pytest
 from certbot import errors
 from certbot.compat import filesystem
@@ -155,6 +157,74 @@ dns_alias_tencent_zones=delegate.example.net
     assert authenticator.credentials.conf("tencent_secret_id") == "fake-id"
     assert authenticator._resolver.resolver.nameservers == ["1.1.1.1", "2606:4700:4700::1111"]
     assert authenticator._router.find("customer.delegate.example.net")[1] == "delegate.example.net"
+
+
+def configure_test_credentials(tmp_path, authenticator):
+    conf = credentials(
+        tmp_path,
+        "dns_alias_provider=tencent\ndns_alias_tencent_secret_id=fake-id\n"
+        "dns_alias_tencent_secret_key=fake-key\ndns_alias_tencent_zones=delegate.example.net",
+    )
+    authenticator.config.dns_alias_credentials = conf.confobj.filename
+
+
+def test_explicit_resolvers_do_not_read_system_configuration(tmp_path, authenticator, monkeypatch):
+    configure_test_credentials(tmp_path, authenticator)
+    read = Mock(side_effect=dns.resolver.NoResolverConfiguration())
+    monkeypatch.setattr(dns.resolver.Resolver, "read_resolv_conf", read)
+    authenticator.config.dns_alias_resolvers = "1.1.1.1, 2606:4700:4700::1111"
+    authenticator._setup_credentials()
+    read.assert_not_called()
+    assert authenticator._resolver.resolver.nameservers == ["1.1.1.1", "2606:4700:4700::1111"]
+
+
+def test_default_resolvers_still_read_system_configuration(tmp_path, authenticator, monkeypatch):
+    configure_test_credentials(tmp_path, authenticator)
+    calls = []
+
+    def read(resolver, filename):
+        calls.append(filename)
+        resolver.nameservers = ["9.9.9.9"]
+
+    monkeypatch.setattr(dns.resolver.Resolver, "read_resolv_conf", read)
+    authenticator._setup_credentials()
+    assert len(calls) == 1
+    assert authenticator._resolver.resolver.nameservers == ["9.9.9.9"]
+
+
+@pytest.mark.parametrize(
+    "exception", [dns.resolver.NoResolverConfiguration(), PermissionError(), ValueError()]
+)
+def test_resolver_initialization_failures_are_actionable(authenticator, monkeypatch, exception):
+    monkeypatch.setattr(dns.resolver.Resolver, "read_resolv_conf", Mock(side_effect=exception))
+    with pytest.raises(
+        errors.PluginError, match="check system DNS.*--dns-alias-resolvers"
+    ) as caught:
+        authenticator._setup_credentials()
+    assert caught.value.__suppress_context__
+
+
+def test_malformed_system_nameserver_becomes_plugin_error(authenticator, monkeypatch):
+    read = dns.resolver.Resolver.read_resolv_conf
+
+    def malformed_config(resolver, filename):
+        read(resolver, StringIO("nameserver invalid-ip\n"))
+
+    monkeypatch.setattr(dns.resolver.Resolver, "read_resolv_conf", malformed_config)
+    with pytest.raises(errors.PluginError, match="check system DNS.*--dns-alias-resolvers"):
+        authenticator._setup_credentials()
+
+
+@pytest.mark.parametrize("addresses", ["", "invalid-ip", "1.1.1.1,", " , "])
+def test_invalid_explicit_resolvers_are_rejected_before_system_discovery(
+    authenticator, monkeypatch, addresses
+):
+    read = Mock(side_effect=dns.resolver.NoResolverConfiguration())
+    monkeypatch.setattr(dns.resolver.Resolver, "read_resolv_conf", read)
+    authenticator.config.dns_alias_resolvers = addresses
+    with pytest.raises(errors.PluginError, match="comma-separated IPv4/IPv6"):
+        authenticator._setup_credentials()
+    read.assert_not_called()
 
 
 @pytest.mark.parametrize(

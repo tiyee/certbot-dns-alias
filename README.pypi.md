@@ -72,11 +72,18 @@ uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 Host dependency requirements depend on the Python version: Python 3.9 uses Certbot 3,
 Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
 To preserve an exact host version, pin it explicitly during installation. For example,
-for a `3.0.0` host:
+for a `3.0.0` host. **Every Certbot 3 host must use the `certbot3` extra** to constrain
+ACME to 3.x and pyOpenSSL below 25, including on Python 3.10–3.13:
 
 ```bash
-python -m pip install 'certbot==3.0.0' certbot-dns-alias
+python -m pip install 'certbot==3.0.0' 'certbot-dns-alias[certbot3]'
 ```
+
+The alias supports the same extra: `certbot-dns-delegation[certbot3]`.
+Default installations on Certbot 5 do not impose this legacy TLS dependency cap.
+The extra is a compatibility option, not a security update for old dependencies; use a
+maintained Certbot 5 host when possible. The extra's constraints apply on Python 3.9–3.13;
+Python 3.14 supports only Certbot 5.
 
 Use your deployment's constraints file to preserve any other host dependency requirements.
 

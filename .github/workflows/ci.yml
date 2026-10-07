@@ -91,3 +91,5 @@ jobs:
         run: uv run --no-sync python scripts/build_distributions.py
       - name: Check alias installation and removal
         run: uv run --no-sync python scripts/check_installation.py --python .tox/${{ matrix.tox-env }}/bin/python
+      - name: Check clean host installation and public lifecycle
+        run: uv run --no-sync python scripts/check_installation.py --fresh --python .tox/${{ matrix.tox-env }}/bin/python

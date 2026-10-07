@@ -16,6 +16,7 @@ import httpx2
 from certbot import errors
 
 from certbot_dns_alias.dns import normalize_name
+from certbot_dns_alias.providers.safety import quiet_sdk_call
 
 RECORD_TYPES = frozenset({"A", "AAAA", "CNAME", "MX", "TXT", "SRV", "NS", "SOA", "CAA"})
 
@@ -207,7 +208,8 @@ class GoDaddyClient:
         body: dict[str, Any] | None = None,
     ) -> Any:
         try:
-            response = self._http.request(method, path, params=params, json=body)
+            with quiet_sdk_call():
+                response = self._http.request(method, path, params=params, json=body)
         except httpx2.RequestError as exc:
             raise GoDaddyTransportError(
                 f"GoDaddy API transport failed ({type(exc).__name__})"

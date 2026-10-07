@@ -76,11 +76,19 @@ Host dependency requirements depend on the Python version: Python 3.9 uses Certb
 Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
 When the installed host satisfies these requirements, pip's default upgrade strategy only
 upgrades dependencies when needed. To preserve an exact host version, pin it explicitly during
-installation. For example, for a `3.0.0` host:
+installation. **Every Certbot 3 host must use the `certbot3` extra**, which also constrains
+ACME to 3.x and pyOpenSSL below 25. Older josepy requires the removed `X509Req` API,
+including on Python 3.10–3.13. For example, for a `3.0.0` host:
 
 ```bash
-python -m pip install 'certbot==3.0.0' certbot-dns-alias
+python -m pip install 'certbot==3.0.0' 'certbot-dns-alias[certbot3]'
 ```
+
+The alias supports the same extra: `certbot-dns-delegation[certbot3]`.
+Default installations on Certbot 5 do not impose this legacy TLS dependency cap.
+The extra is a compatibility option, not a security update for old dependencies; use a
+maintained Certbot 5 host when possible. The extra's constraints apply on Python 3.9–3.13;
+Python 3.14 supports only Certbot 5.
 
 If your deployment also pins ACME, pyOpenSSL, or other dependencies, use its constraints file.
 The plugin and Certbot must share the same Python environment. For a snap or Docker installation

@@ -15,6 +15,7 @@ from cloudflare import APIError, APIStatusError, Cloudflare, Omit
 
 from certbot_dns_alias.dns import normalize_name
 from certbot_dns_alias.providers.base import DNSProvider, TxtRecord
+from certbot_dns_alias.providers.safety import quiet_sdk_call
 
 
 class CloudflareDNSProvider(DNSProvider):
@@ -43,7 +44,8 @@ class CloudflareDNSProvider(DNSProvider):
 
     def _call(self, operation: Callable, *, missing_ok: bool = False, **kwargs: Any):
         try:
-            return operation(**kwargs)
+            with quiet_sdk_call():
+                return operation(**kwargs)
         except APIError as exc:
             codes = [
                 item.code

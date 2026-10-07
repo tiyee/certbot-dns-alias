@@ -10,6 +10,8 @@ from certbot import errors
 from Tea.exceptions import TeaException, UnretryableException
 
 from certbot_dns_alias.providers.base import DNSProvider, TxtRecord
+from certbot_dns_alias.providers.pagination import PageTracker, record_identity, zone_identity
+from certbot_dns_alias.providers.safety import ProviderAPIError, quiet_sdk_call
 
 
 class AliyunDNSProvider(DNSProvider):
@@ -42,15 +44,17 @@ class AliyunDNSProvider(DNSProvider):
 
     def _call(self, operation: str, request):
         try:
-            return getattr(self.client, operation)(request, self.runtime).body
+            with quiet_sdk_call():
+                return getattr(self.client, operation)(request, self.runtime).body
         except (TeaException, UnretryableException) as exc:
             # SDK messages can contain request details. Report only the code.
-            code = getattr(exc, "code", None) or type(exc).__name__
-            raise errors.PluginError(f"Aliyun DNS {operation} failed ({code})") from exc
+            code = getattr(exc, "code", None)
+            raise ProviderAPIError("Aliyun DNS", operation, code) from None
 
     def list_zones(self) -> list[str]:
         zones = []
         page = 1
+        tracker = PageTracker("Aliyun DNS zone query", self.page_size, fixed_pages=True)
         while True:
             body = self._call(
                 "describe_domains_with_options",
@@ -61,16 +65,20 @@ class AliyunDNSProvider(DNSProvider):
             )
             items = body.domains.domain if body.domains else []
             items = items or []
+            self._check_page(body, page)
+            complete = tracker.accept(
+                body.total_count,
+                [zone_identity(getattr(item, "domain_name", None)) for item in items],
+            )
             zones.extend(item.domain_name for item in items)
-            if page * self.page_size >= body.total_count:
+            if complete:
                 return zones
-            if not items:
-                raise errors.PluginError("Aliyun DNS returned an incomplete zone list")
             page += 1
 
     def list_txt_records(self, zone: str, name: str) -> list[TxtRecord]:
         records = []
         page = 1
+        tracker = PageTracker("Aliyun DNS TXT record query", self.page_size, fixed_pages=True)
         while True:
             body = self._call(
                 "describe_domain_records_with_options",
@@ -85,6 +93,11 @@ class AliyunDNSProvider(DNSProvider):
             )
             items = body.domain_records.record if body.domain_records else []
             items = items or []
+            self._check_page(body, page)
+            complete = tracker.accept(
+                body.total_count,
+                [record_identity(getattr(item, "record_id", None)) for item in items],
+            )
             records.extend(
                 TxtRecord(str(item.record_id), item.rr, item.value)
                 for item in items
@@ -93,11 +106,18 @@ class AliyunDNSProvider(DNSProvider):
                 and item.status == "ENABLE"
                 and item.line == "default"
             )
-            if page * self.page_size >= body.total_count:
+            if complete:
                 return records
-            if not items:
-                raise errors.PluginError("Aliyun DNS returned an incomplete TXT record list")
             page += 1
+
+    def _check_page(self, body, page: int) -> None:
+        if (
+            type(body.page_number) is not int
+            or body.page_number != page
+            or type(body.page_size) is not int
+            or body.page_size != self.page_size
+        ):
+            raise errors.PluginError("Aliyun DNS returned invalid page metadata")
 
     def create_txt_record(self, zone: str, name: str, value: str, ttl: int) -> str:
         body = self._call(
@@ -125,5 +145,5 @@ class AliyunDNSProvider(DNSProvider):
             )
         except errors.PluginError as exc:
             # DeleteDomainRecord takes only a record ID, not a zone name.
-            if getattr(exc.__cause__, "code", None) != "InvalidRecordId.NotFound":
+            if getattr(exc, "code", None) != "InvalidRecordId.NotFound":
                 raise

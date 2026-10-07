@@ -10,6 +10,8 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.dnspod.v20210323 import dnspod_client, models
 
 from certbot_dns_alias.providers.base import DNSProvider, TxtRecord
+from certbot_dns_alias.providers.pagination import PageTracker, record_identity, zone_identity
+from certbot_dns_alias.providers.safety import ProviderAPIError, quiet_sdk_call
 
 
 class TencentDNSProvider(DNSProvider):
@@ -26,15 +28,15 @@ class TencentDNSProvider(DNSProvider):
 
     def _call(self, operation: str, request):
         try:
-            return getattr(self.client, operation)(request)
+            with quiet_sdk_call():
+                return getattr(self.client, operation)(request)
         except TencentCloudSDKException as exc:
-            raise errors.PluginError(
-                f"Tencent DNSPod {operation} failed ({exc.get_code()})"
-            ) from exc
+            raise ProviderAPIError("Tencent DNSPod", operation, exc.get_code()) from None
 
     def list_zones(self) -> list[str]:
         zones = []
         offset = 0
+        tracker = PageTracker("Tencent DNSPod zone query", self.page_size)
         while True:
             request = models.DescribeDomainListRequest()
             request.Type = "ALL"
@@ -42,16 +44,19 @@ class TencentDNSProvider(DNSProvider):
             request.Limit = self.page_size
             body = self._call("DescribeDomainList", request)
             items = body.DomainList or []
+            total = body.DomainCountInfo.DomainTotal if body.DomainCountInfo else None
+            complete = tracker.accept(
+                total, [zone_identity(getattr(item, "Name", None)) for item in items]
+            )
             zones.extend(item.Name for item in items)
             offset += len(items)
-            if offset >= body.DomainCountInfo.DomainTotal:
+            if complete:
                 return zones
-            if not items:
-                raise errors.PluginError("Tencent DNSPod returned an incomplete zone list")
 
     def list_txt_records(self, zone: str, name: str) -> list[TxtRecord]:
         records = []
         offset = 0
+        tracker = PageTracker("Tencent DNSPod TXT record query", self.page_size)
         while True:
             request = models.DescribeRecordListRequest()
             request.Domain = zone
@@ -65,10 +70,21 @@ class TencentDNSProvider(DNSProvider):
             try:
                 body = self._call("DescribeRecordList", request)
             except errors.PluginError as exc:
-                if getattr(exc.__cause__, "code", None) == "ResourceNotFound.NoDataOfRecord":
-                    return records
+                if getattr(exc, "code", None) == "ResourceNotFound.NoDataOfRecord":
+                    if offset == 0:
+                        return []
+                    raise errors.PluginError(
+                        "Tencent DNSPod returned an incomplete TXT record list"
+                    ) from None
                 raise
             items = body.RecordList or []
+            info = body.RecordCountInfo
+            if info is None or type(info.ListCount) is not int or info.ListCount != len(items):
+                raise errors.PluginError("Tencent DNSPod returned invalid record count metadata")
+            complete = tracker.accept(
+                info.TotalCount,
+                [record_identity(getattr(item, "RecordId", None), integer=True) for item in items],
+            )
             records.extend(
                 TxtRecord(str(item.RecordId), item.Name, item.Value)
                 for item in items
@@ -78,10 +94,8 @@ class TencentDNSProvider(DNSProvider):
                 and item.LineId == "0"
             )
             offset += len(items)
-            if offset >= body.RecordCountInfo.TotalCount:
+            if complete:
                 return records
-            if not items:
-                raise errors.PluginError("Tencent DNSPod returned an incomplete TXT record list")
 
     def create_txt_record(self, zone: str, name: str, value: str, ttl: int) -> str:
         request = models.CreateRecordRequest()
@@ -104,5 +118,5 @@ class TencentDNSProvider(DNSProvider):
         try:
             self._call("DeleteRecord", request)
         except errors.PluginError as exc:
-            if getattr(exc.__cause__, "code", None) != "ResourceNotFound.NoDataOfRecord":
+            if getattr(exc, "code", None) != "ResourceNotFound.NoDataOfRecord":
                 raise

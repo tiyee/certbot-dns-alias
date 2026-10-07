@@ -5,27 +5,30 @@ resolution-markers = [
     "python_full_version >= '3.14'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
+conflicts = [[
+    { package = "certbot-dns-alias", extra = "certbot3" },
+    { package = "certbot-dns-alias", group = "dev" },
+]]
 
 [[package]]
 name = "acme"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "josepy", version = "1.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pyrfc3339", marker = "python_full_version < '3.10'" },
-    { name = "pytz", marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "josepy", version = "1.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyrfc3339", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pytz", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/56/66/cf2dc843eb075caedc5407190ba41e837fabd5d8536380c68601e40ea325/acme-3.1.0.tar.gz", hash = "sha256:39ae0032834585e5c893d7865a5867af01598b5ebef688edb54e9f11cb89ccd9", size = 91131, upload-time = "2025-01-07T23:33:42.997Z" }
 wheels = [
@@ -42,11 +45,11 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "josepy", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "pyopenssl", version = "26.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "pyrfc3339", marker = "python_full_version >= '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "josepy", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyopenssl", version = "26.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyrfc3339", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3a/b8/4ca6f1b0e04472d21b248d32a6abc5e24058dac68b513a8ab7526837b100/acme-5.8.0.tar.gz", hash = "sha256:44c4edb53acdd3fa8402cb29c78a6d1bd2005d777a4d2fcd12663bbc3c147b34", size = 91121, upload-time = "2026-09-01T21:15:36.946Z" }
 wheels = [
@@ -67,9 +70,7 @@ name = "aiohappyeyeballs"
 version = "2.6.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/26/30/f84a107a9c4331c14b2b586036f40965c128aa4fee4dda5d3d51cb14ad54/aiohappyeyeballs-2.6.1.tar.gz", hash = "sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558", size = 22760, upload-time = "2025-03-12T01:42:48.764Z" }
 wheels = [
@@ -95,19 +96,17 @@ name = "aiohttp"
 version = "3.13.5"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "aiohappyeyeballs", version = "2.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "aiosignal", marker = "python_full_version < '3.10'" },
-    { name = "async-timeout", marker = "python_full_version < '3.10'" },
-    { name = "attrs", marker = "python_full_version < '3.10'" },
-    { name = "frozenlist", marker = "python_full_version < '3.10'" },
-    { name = "multidict", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "propcache", version = "0.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "yarl", version = "1.22.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "aiohappyeyeballs", version = "2.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "aiosignal", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "async-timeout", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "attrs", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "frozenlist", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "multidict", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "propcache", version = "0.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "yarl", version = "1.22.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/77/9a/152096d4808df8e4268befa55fba462f440f14beab85e8ad9bf990516918/aiohttp-3.13.5.tar.gz", hash = "sha256:9d98cc980ecc96be6eb4c1994ce35d28d8b1f5e5208a23b421187d1209dbb7d1", size = 7858271, upload-time = "2026-03-31T22:01:03.343Z" }
 wheels = [
@@ -242,15 +241,15 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "aiohappyeyeballs", version = "2.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "aiosignal", marker = "python_full_version >= '3.10'" },
-    { name = "async-timeout", marker = "python_full_version == '3.10.*'" },
-    { name = "attrs", marker = "python_full_version >= '3.10'" },
-    { name = "frozenlist", marker = "python_full_version >= '3.10'" },
-    { name = "multidict", version = "6.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "propcache", version = "0.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
-    { name = "yarl", version = "1.25.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "aiohappyeyeballs", version = "2.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "aiosignal", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "async-timeout", marker = "python_full_version == '3.10.*' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "attrs", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "frozenlist", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "multidict", version = "6.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "propcache", version = "0.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "(python_full_version >= '3.10' and python_full_version < '3.13') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.13' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "yarl", version = "1.25.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/93/2f/6a91adaa2dc26877d6ed2f54c0370c8910f019db7d77c5c6a194611e93ea/aiohttp-3.14.4.tar.gz", hash = "sha256:831fc5bd39ec2517851e348f613ddb5447a47cf4b71cb09845af7ad7ed45d8f9", size = 8077839, upload-time = "2026-10-05T17:43:48.309Z" }
 wheels = [
@@ -422,7 +421,7 @@ version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "frozenlist" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
@@ -483,10 +482,10 @@ name = "alibabacloud-tea"
 version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9a/7d/b22cb9a0d4f396ee0f3f9d7f26b76b9ed93d4101add7867a2c87ed2534f5/alibabacloud-tea-0.4.3.tar.gz", hash = "sha256:ec8053d0aa8d43ebe1deb632d5c5404339b39ec9a18a0707d57765838418504a", size = 8785, upload-time = "2025-03-24T07:34:42.958Z" }
 
@@ -498,8 +497,8 @@ dependencies = [
     { name = "alibabacloud-credentials" },
     { name = "alibabacloud-gateway-spi" },
     { name = "alibabacloud-tea-util" },
-    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "darabonba-core" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ab/34/1918a2d780676494365c7f945bfab397ecddb988054d78025bd26f438977/alibabacloud_tea_openapi-0.4.6.tar.gz", hash = "sha256:dafc32401712f5b21c12dc3d05ba887a91ad156d9b49a7662279f9fd90526fb2", size = 26742, upload-time = "2026-08-17T08:34:11.55Z" }
@@ -524,9 +523,7 @@ name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ee/67/531ea369ba64dcff5ec9c3402f9f51bf748cec26dde048a2f973a4eea7f5/annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89", size = 16081, upload-time = "2024-05-20T21:33:25.928Z" }
 wheels = [
@@ -552,14 +549,12 @@ name = "anyio"
 version = "4.12.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "exceptiongroup", marker = "python_full_version < '3.10'" },
-    { name = "idna", marker = "python_full_version < '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.10'" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/96/f0/5eb65b2bb0d09ac6776f2eb54adee6abe8228ea05b20a5ad0e4945de8aac/anyio-4.12.1.tar.gz", hash = "sha256:41cfcc3a4c85d3f05c932da7c26d0201ac36f72abd4435ba90d0464a3ffed703", size = 228685, upload-time = "2026-01-06T11:45:21.246Z" }
 wheels = [
@@ -576,9 +571,9 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "exceptiongroup", marker = "python_full_version == '3.10.*'" },
-    { name = "idna", marker = "python_full_version >= '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.10' and python_full_version < '3.15'" },
+    { name = "exceptiongroup", marker = "python_full_version == '3.10.*' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "(python_full_version >= '3.10' and python_full_version < '3.15') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.15' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
 wheels = [
@@ -590,8 +585,8 @@ name = "apscheduler"
 version = "3.11.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tzlocal", version = "5.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "tzlocal", version = "5.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "tzlocal", version = "5.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "tzlocal", version = "5.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8c/6b/eeff360196bb20b312c9e762a820fd1b2c6d809466c755ef57863478e454/apscheduler-3.11.3.tar.gz", hash = "sha256:cd2fcc9330039a81a5893472ad49facf23a6d5604cbe1d918c835c6de7834d5a", size = 110312, upload-time = "2026-06-28T19:39:22.493Z" }
 wheels = [
@@ -630,9 +625,7 @@ name = "cachetools"
 version = "6.2.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/39/91/d9ae9a66b01102a18cd16db0cf4cd54187ffe10f0865cc80071a4104fbb3/cachetools-6.2.6.tar.gz", hash = "sha256:16c33e1f276b9a9c0b49ab5782d901e3ad3de0dd6da9bf9bcd29ac5672f2f9e6", size = 32363, upload-time = "2026-01-27T20:32:59.956Z" }
 wheels = [
@@ -658,22 +651,22 @@ name = "certbot"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "acme", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "configargparse", marker = "python_full_version < '3.10'" },
-    { name = "configobj", marker = "python_full_version < '3.10'" },
-    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "distro", marker = "python_full_version < '3.10'" },
-    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "josepy", version = "1.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "parsedatetime", marker = "python_full_version < '3.10'" },
-    { name = "pyrfc3339", marker = "python_full_version < '3.10'" },
-    { name = "pytz", marker = "python_full_version < '3.10'" },
-    { name = "pywin32", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
+    { name = "acme", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "configargparse", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "configobj", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "distro", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "josepy", version = "1.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "parsedatetime", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyrfc3339", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pytz", marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pywin32", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version < '3.14' and sys_platform == 'win32' and extra == 'extra-17-certbot-dns-alias-certbot3') or (python_full_version >= '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'win32' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/51/91/36333487ecdd801cc641bbf07f3e798f1cf715078a6fb64f3b46f715ab80/certbot-3.1.0.tar.gz", hash = "sha256:0ac0bacc74af1802eeb13f4008f0cb2eaccb0432a07224f5c8554ba6f135c2df", size = 438778, upload-time = "2025-01-07T23:33:45.178Z" }
 wheels = [
@@ -690,15 +683,15 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "acme", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "configargparse", marker = "python_full_version >= '3.10'" },
-    { name = "configobj", marker = "python_full_version >= '3.10'" },
-    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "distro", marker = "python_full_version >= '3.10'" },
-    { name = "josepy", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "parsedatetime", marker = "python_full_version >= '3.10'" },
-    { name = "pyrfc3339", marker = "python_full_version >= '3.10'" },
-    { name = "pywin32", marker = "python_full_version >= '3.10' and sys_platform == 'win32'" },
+    { name = "acme", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "configargparse", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "configobj", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "distro", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "josepy", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "parsedatetime", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyrfc3339", marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pywin32", marker = "(python_full_version >= '3.14' and sys_platform == 'win32') or (python_full_version >= '3.10' and sys_platform == 'win32' and extra != 'extra-17-certbot-dns-alias-certbot3') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'win32' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/31/29/fbf5127d2b8d178d7add2b9145560436a69b437045c6197a4b6edbfcbb3c/certbot-5.8.0.tar.gz", hash = "sha256:a4a2c7b0459bb626b3791ef07b6df26bbb222d2324783ba3e60f76c0933eec87", size = 708523, upload-time = "2026-09-01T21:15:48.114Z" }
 wheels = [
@@ -707,61 +700,74 @@ wheels = [
 
 [[package]]
 name = "certbot-dns-alias"
-version = "0.1.3"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "acme", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "acme", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "acme", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "acme", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "alibabacloud-alidns20150109" },
     { name = "alibabacloud-tea-openapi" },
     { name = "alibabacloud-tea-util" },
-    { name = "certbot", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "certbot", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "certbot", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "certbot", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "cloudflare" },
-    { name = "dnspython", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "dnspython", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "dnspython", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "dnspython", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "httpx" },
-    { name = "httpx2", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "httpx2", version = "2.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "httpx2", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "httpx2", version = "2.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "tencentcloud-sdk-python-dnspod" },
+]
+
+[package.optional-dependencies]
+certbot3 = [
+    { name = "acme", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "certbot", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "certbot", version = "5.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "pytest-cov" },
     { name = "ruff" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
-    { name = "tox", version = "4.30.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "tox", version = "4.64.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "tox-uv", version = "1.28.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "tox-uv", version = "1.36.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "tox", version = "4.30.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "tox", version = "4.64.9", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "tox-uv", version = "1.28.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "tox-uv", version = "1.36.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "twine" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "acme", specifier = ">=3,<6" },
+    { name = "acme", marker = "python_full_version < '3.14' and extra == 'certbot3'", specifier = ">=3,<4" },
     { name = "alibabacloud-alidns20150109", specifier = ">=3.0,<5" },
     { name = "alibabacloud-tea-openapi", specifier = ">=0.3,<1" },
     { name = "alibabacloud-tea-util", specifier = ">=0.3,<1" },
     { name = "certbot", marker = "python_full_version < '3.10'", specifier = ">=3,<4" },
     { name = "certbot", marker = "python_full_version >= '3.10' and python_full_version < '3.14'", specifier = ">=3,<6" },
     { name = "certbot", marker = "python_full_version >= '3.14'", specifier = ">=5,<6" },
+    { name = "certbot", marker = "python_full_version < '3.14' and extra == 'certbot3'", specifier = ">=3,<4" },
     { name = "cloudflare", specifier = ">=4,<5" },
     { name = "dnspython", specifier = ">=2.6,<3" },
     { name = "httpx", specifier = ">=0.27,<1" },
     { name = "httpx2", specifier = ">=2,<3" },
     { name = "importlib-metadata", marker = "python_full_version < '3.10'", specifier = ">=4.6,<9" },
     { name = "pyopenssl", marker = "python_full_version < '3.10'", specifier = "<25" },
+    { name = "pyopenssl", marker = "python_full_version < '3.14' and extra == 'certbot3'", specifier = "<25" },
     { name = "tencentcloud-sdk-python-dnspod", specifier = ">=3.1.130,<4" },
 ]
+provides-extras = ["certbot3"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "certbot", marker = "python_full_version >= '3.10'", specifier = ">=5,<6" },
     { name = "pytest", specifier = ">=8,<10" },
     { name = "pytest-cov", specifier = ">=5,<8" },
     { name = "ruff", specifier = ">=0.11,<1" },
@@ -785,12 +791,10 @@ name = "cffi"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pycparser", version = "2.23", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' and implementation_name != 'PyPy'" },
+    { name = "pycparser", version = "2.23", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and implementation_name != 'PyPy') or (python_full_version >= '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (implementation_name == 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/56/b1ba7935a17738ae8453301356628e8147c79dbb825bcbc73dc7401f9846/cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529", size = 523588, upload-time = "2025-09-08T23:24:04.541Z" }
 wheels = [
@@ -889,7 +893,7 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "pycparser", version = "3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and implementation_name != 'PyPy'" },
+    { name = "pycparser", version = "3.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and implementation_name != 'PyPy') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (implementation_name == 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -1187,8 +1191,8 @@ name = "cloudflare"
 version = "4.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "distro" },
     { name = "httpx" },
     { name = "pydantic" },
@@ -1232,9 +1236,7 @@ name = "coverage"
 version = "7.10.7"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/51/26/d22c300112504f5f9a9fd2297ce33c35f3d353e4aeb987c8419453b2a7c2/coverage-7.10.7.tar.gz", hash = "sha256:f4ab143ab113be368a3e9b795f9cd7906c5ef407d6173fe9675a902e1fffc239", size = 827704, upload-time = "2025-09-21T20:03:56.815Z" }
 wheels = [
@@ -1491,12 +1493,13 @@ name = "cryptography"
 version = "44.0.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cffi", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' and platform_python_implementation != 'PyPy'" },
+    { name = "cffi", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and platform_python_implementation != 'PyPy') or (python_full_version >= '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (platform_python_implementation == 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "cffi", version = "2.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and python_full_version < '3.14' and platform_python_implementation != 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (platform_python_implementation == 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/53/d6/1411ab4d6108ab167d06254c5be517681f1e331f90edf1379895bcb87020/cryptography-44.0.3.tar.gz", hash = "sha256:fe19d8bc5536a91a24a8133328880a41831b6c5df54599a8417b62fe015d3053", size = 711096, upload-time = "2025-05-02T19:36:04.667Z" }
 wheels = [
@@ -1548,8 +1551,8 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cffi", version = "2.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and platform_python_implementation != 'PyPy'" },
-    { name = "typing-extensions", marker = "python_full_version == '3.10.*'" },
+    { name = "cffi", version = "2.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.14' and platform_python_implementation != 'PyPy') or (python_full_version >= '3.10' and platform_python_implementation != 'PyPy' and extra != 'extra-17-certbot-dns-alias-certbot3') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (platform_python_implementation == 'PyPy' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "(python_full_version == '3.10.*' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9d/af/182eb91b0df3fe75c4d9f26fe70684569566745f6ba7e5c9c73a862c5252/cryptography-50.0.2.tar.gz", hash = "sha256:7b46165bb56eb4704e2eaaf86f3c940d19154535d9b0ca7d6d590b04060e00d5", size = 880623, upload-time = "2026-09-30T15:30:04.884Z" }
 wheels = [
@@ -1618,13 +1621,13 @@ name = "darabonba-core"
 version = "1.0.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "aiohttp", version = "3.14.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "alibabacloud-tea" },
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "websocket-client", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "websocket-client", version = "1.9.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "websocket-client", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "websocket-client", version = "1.9.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/72/a1ae02a243be50e48aeedcaa089c153227300ed419880b99ac68bc4a259f/darabonba_core-1.0.9.tar.gz", hash = "sha256:1026c965b4c2b48f89995eadad7ab780a03959812c8f8de4670eb44c48e5b179", size = 28077, upload-time = "2026-08-31T08:23:42.304Z" }
 wheels = [
@@ -1654,9 +1657,7 @@ name = "dnspython"
 version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b5/4a/263763cb2ba3816dd94b08ad3a33d5fdae34ecb856678773cc40a3605829/dnspython-2.7.0.tar.gz", hash = "sha256:ce9c432eda0dc91cf618a5cedf1a4e142651196bbcd2c80e89ed5a907e5cfaf1", size = 345197, upload-time = "2024-10-05T20:14:59.362Z" }
 wheels = [
@@ -1691,7 +1692,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "(python_full_version < '3.13' and sys_platform != 'emscripten') or (python_full_version < '3.12' and sys_platform == 'emscripten')" },
+    { name = "typing-extensions", marker = "(python_full_version < '3.13' and sys_platform != 'emscripten') or (python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version >= '3.12' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -1703,9 +1704,7 @@ name = "filelock"
 version = "3.19.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/40/bb/0ab3e58d22305b6f5440629d20683af28959bf793d98d11950e305c1c326/filelock-3.19.1.tar.gz", hash = "sha256:66eda1888b0171c998b35be2bcc0f6d75c388a7ce20c3f3f37aa8e96c2dddf58", size = 17687, upload-time = "2025-08-14T16:56:03.016Z" }
 wheels = [
@@ -1890,13 +1889,11 @@ name = "httpcore2"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "certifi", marker = "python_full_version < '3.10'" },
-    { name = "h11", marker = "python_full_version < '3.10'" },
+    { name = "certifi", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "h11", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c5/18/e51f5729684acaaab4d1cfca0777ac0f86440c65d2814992442ed5ef02e1/httpcore2-2.0.0.tar.gz", hash = "sha256:403692e0a0e8ea6de90993cdea815b2454d2ff5426e61d2a244846c12506af76", size = 63864, upload-time = "2026-05-12T17:59:22.073Z" }
 wheels = [
@@ -1912,8 +1909,8 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "h11", marker = "(python_full_version >= '3.10' and python_full_version < '3.12') or (python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten')" },
-    { name = "truststore", marker = "(python_full_version >= '3.10' and python_full_version < '3.12') or (python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten')" },
+    { name = "h11", marker = "(python_full_version >= '3.10' and python_full_version < '3.12') or (python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "truststore", marker = "(python_full_version >= '3.10' and python_full_version < '3.12') or (python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/f3/1db7aa2bc2524062192bb0e0323969492d1883152a232fe36eea65f4e35c/httpcore2-2.13.1.tar.gz", hash = "sha256:e0aa977abe17e69a3b820a24542a6fa88702676d83880b8d194dcd18408e5103", size = 68071, upload-time = "2026-09-23T07:47:22.372Z" }
 wheels = [
@@ -1925,8 +1922,8 @@ name = "httpx"
 version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "certifi" },
     { name = "httpcore" },
     { name = "idna" },
@@ -1941,15 +1938,13 @@ name = "httpx2"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "certifi", marker = "python_full_version < '3.10'" },
-    { name = "httpcore2", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "idna", marker = "python_full_version < '3.10'" },
+    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "certifi", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "httpcore2", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/70/95/868b3df4aa6f9cecb42aaf82a55a5a2c8ef40df76d709b812e1553d6a928/httpx2-2.0.0.tar.gz", hash = "sha256:f354249d2a9edce26e08fd2ad2276e98317b5763f673bb0d90f3ce9382cc2aed", size = 79506, upload-time = "2026-05-12T17:59:23.174Z" }
 wheels = [
@@ -1966,12 +1961,12 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and sys_platform != 'emscripten'" },
-    { name = "httpcore2", version = "2.13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and sys_platform != 'emscripten'" },
-    { name = "httpx2-jsfetch", marker = "python_full_version >= '3.12' and sys_platform == 'emscripten'" },
-    { name = "idna", marker = "python_full_version >= '3.10'" },
-    { name = "truststore", marker = "python_full_version >= '3.10' and sys_platform != 'emscripten'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
+    { name = "anyio", version = "4.15.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform == 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "httpcore2", version = "2.13.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform == 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "httpx2-jsfetch", marker = "(python_full_version >= '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.12' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "truststore", marker = "(python_full_version >= '3.10' and sys_platform != 'emscripten') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform == 'emscripten' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "(python_full_version >= '3.10' and python_full_version < '3.13') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.13' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d5/44/474bef2a0e9d90f1715d32cb98b0738695ca17ba324095fb2497ed7fbd59/httpx2-2.13.1.tar.gz", hash = "sha256:e48744a19e3af5ee48313d0ce5fe941d5422fae5705ea922a4aabf94d7800dfa", size = 100405, upload-time = "2026-09-23T07:47:23.052Z" }
 wheels = [
@@ -1992,8 +1987,8 @@ name = "id"
 version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6d/04/c2156091427636080787aac190019dc64096e56a23b7364d3c1764ee3a06/id-1.6.1.tar.gz", hash = "sha256:d0732d624fb46fd4e7bc4e5152f00214450953b9e772c182c1c22964def1a069", size = 18088, upload-time = "2026-02-04T16:19:41.26Z" }
 wheels = [
@@ -2014,12 +2009,10 @@ name = "importlib-metadata"
 version = "8.7.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "zipp", version = "3.23.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "zipp", version = "3.23.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f3/49/3b30cad09e7771a4982d9975a8cbf64f00d4a1ececb53297f1d9a7be1b10/importlib_metadata-8.7.1.tar.gz", hash = "sha256:49fef1ae6440c182052f407c8d34a68f72efc36db9ca90dc0113398f2fdde8bb", size = 57107, upload-time = "2025-12-21T10:00:19.278Z" }
 wheels = [
@@ -2046,9 +2039,7 @@ name = "iniconfig"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793, upload-time = "2025-03-19T20:09:59.721Z" }
 wheels = [
@@ -2074,8 +2065,8 @@ name = "jaraco-classes"
 version = "3.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "more-itertools", version = "10.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "more-itertools", version = "11.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "more-itertools", version = "10.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "more-itertools", version = "11.1.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/06/c0/ed4a27bc5571b99e3cff68f8a9fa5b56ff7df1c2251cc715a652ddd26402/jaraco.classes-3.4.0.tar.gz", hash = "sha256:47a024b51d0239c0dd8c8540c6c7f484be3b8fcf0b2d85c13825780d3b3f3acd", size = 11780, upload-time = "2024-03-31T07:27:36.643Z" }
 wheels = [
@@ -2087,9 +2078,7 @@ name = "jaraco-context"
 version = "6.1.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "backports-tarfile", marker = "python_full_version < '3.10'" },
@@ -2121,9 +2110,7 @@ name = "jaraco-functools"
 version = "4.4.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "more-itertools", version = "10.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -2164,13 +2151,13 @@ name = "josepy"
 version = "1.15.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pyopenssl", version = "24.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c1/8a/cd416f56cd4492878e8d62701b4ad32407c5ce541f247abf31d6e5f3b79b/josepy-1.15.0.tar.gz", hash = "sha256:46c9b13d1a5104ffbfa5853e555805c915dcde71c2cd91ce5386e84211281223", size = 59310, upload-time = "2025-01-22T23:56:23.577Z" }
 wheels = [
@@ -2187,7 +2174,7 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7f/ad/6f520aee9cc9618d33430380741e9ef859b2c560b1e7915e755c084f6bc0/josepy-2.2.0.tar.gz", hash = "sha256:74c033151337c854f83efe5305a291686cef723b4b970c43cfe7270cf4a677a9", size = 56500, upload-time = "2025-10-14T14:54:42.108Z" }
 wheels = [
@@ -2199,17 +2186,17 @@ name = "keyring"
 version = "25.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "importlib-metadata", version = "9.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and python_full_version < '3.12'" },
+    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "importlib-metadata", version = "9.0.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and python_full_version < '3.12' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.12' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "jaraco-classes" },
-    { name = "jaraco-context", version = "6.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "jaraco-context", version = "6.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "jaraco-functools", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "jaraco-functools", version = "4.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "jaraco-context", version = "6.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "jaraco-context", version = "6.1.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "jaraco-functools", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "jaraco-functools", version = "4.6.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "jeepney", marker = "sys_platform == 'linux'" },
     { name = "pywin32-ctypes", marker = "sys_platform == 'win32'" },
-    { name = "secretstorage", version = "3.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' and sys_platform == 'linux'" },
-    { name = "secretstorage", version = "3.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and sys_platform == 'linux'" },
+    { name = "secretstorage", version = "3.3.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and sys_platform == 'linux' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version >= '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'linux' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "secretstorage", version = "3.5.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and sys_platform == 'linux' and extra == 'group-17-certbot-dns-alias-dev') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'linux' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/4b/674af6ef2f97d56f0ab5153bf0bfa28ccb6c3ed4d1babf4305449668807b/keyring-25.7.0.tar.gz", hash = "sha256:fe01bd85eb3f8fb3dd0405defdeac9a5b4f6f0439edbb3149577f244a2e8245b", size = 63516, upload-time = "2025-11-16T16:26:09.482Z" }
 wheels = [
@@ -2221,9 +2208,7 @@ name = "markdown-it-py"
 version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "mdurl", marker = "python_full_version < '3.10'" },
@@ -2264,9 +2249,7 @@ name = "more-itertools"
 version = "10.8.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ea/5d/38b681d3fce7a266dd9ab73c66959406d565b3e85f21d5e66e1181d93721/more_itertools-10.8.0.tar.gz", hash = "sha256:f638ddf8a1a0d134181275fb5d58b086ead7c6a72429ad725c67503f13ba30bd", size = 137431, upload-time = "2025-09-02T15:23:11.018Z" }
 wheels = [
@@ -2292,12 +2275,10 @@ name = "multidict"
 version = "6.7.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.10'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1a/c2/c2d94cbe6ac1753f3fc980da97b3d930efe1da3af3c9f5125354436c073d/multidict-6.7.1.tar.gz", hash = "sha256:ec6652a1bee61c53a3e5776b6049172c53b6aaba34f18c9ad04f82712bac623d", size = 102010, upload-time = "2026-01-26T02:46:45.979Z" }
 wheels = [
@@ -2458,7 +2439,7 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version == '3.10.*'" },
+    { name = "typing-extensions", marker = "python_full_version == '3.10.*' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d6/99/1d4d69c3512d0ddbfa3a1b69cfd9a151012ab2eb4eabbb096201b1f0b7d8/multidict-6.9.1.tar.gz", hash = "sha256:0f06e60fa190aa7abd0914c2a766736fdc8e9f34878c4346338534b73d1b20e2", size = 182404, upload-time = "2026-09-21T17:59:05.362Z" }
 wheels = [
@@ -2691,9 +2672,7 @@ name = "platformdirs"
 version = "4.4.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/23/e8/21db9c9987b0e728855bd57bff6984f67952bea55d6f75e055c46b5383e8/platformdirs-4.4.0.tar.gz", hash = "sha256:ca753cf4d81dc309bc67b0ea38fd15dc97bc30ce419a7f58d13eb3bf14c4febf", size = 21634, upload-time = "2025-08-26T14:32:04.268Z" }
 wheels = [
@@ -2728,9 +2707,7 @@ name = "propcache"
 version = "0.4.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/da/e9fc233cf63743258bff22b3dfa7ea5baef7b5bc324af47a0ad89b8ffc6f/propcache-0.4.1.tar.gz", hash = "sha256:f48107a8c637e80362555f37ecf49abe20370e557cc4ab374f04ec4423c97c3d", size = 46442, upload-time = "2025-10-08T19:49:02.291Z" }
 wheels = [
@@ -3012,9 +2989,7 @@ name = "pycparser"
 version = "2.23"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fe/cf/d2d3b9f5699fb1e4615c8e32ff220203e43b248e1dfcc6736ad9057731ca/pycparser-2.23.tar.gz", hash = "sha256:78816d4f24add8f10a06d6f05b4d424ad9e96cfebf68a4ddc99c65c0720d00c2", size = 173734, upload-time = "2025-09-09T13:23:47.91Z" }
 wheels = [
@@ -3040,12 +3015,12 @@ name = "pydantic"
 version = "2.13.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "annotated-types", version = "0.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "annotated-types", version = "0.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "annotated-types", version = "0.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "annotated-types", version = "0.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "pydantic-core" },
     { name = "typing-extensions" },
-    { name = "typing-inspection", version = "0.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "typing-inspection", version = "0.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "typing-inspection", version = "0.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-inspection", version = "0.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/53/ef/fc4f868f4e2cee79f863883abffceff107875f569b848507319842d2a681/pydantic-2.13.5.tar.gz", hash = "sha256:51a9c5f7b2f8e636f04c6cada605d9b6a3bf1348fdf945a3d8869b19bba0ee08", size = 845750, upload-time = "2026-08-28T14:04:00.916Z" }
 wheels = [
@@ -3196,12 +3171,12 @@ name = "pyopenssl"
 version = "24.3.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (python_full_version < '3.14' and extra == 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c1/d4/1067b82c4fc674d6f6e9e8d26b3dff978da46d351ca3bac171544693e085/pyopenssl-24.3.0.tar.gz", hash = "sha256:49f7a019577d834746bc55c5fce6ecbcec0f2b4ec5ce1cf43a9a173b8138bb36", size = 178944, upload-time = "2024-11-27T20:43:12.755Z" }
 wheels = [
@@ -3218,8 +3193,8 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
+    { name = "cryptography", version = "50.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or (python_full_version >= '3.10' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "typing-extensions", marker = "(python_full_version >= '3.10' and python_full_version < '3.13' and extra != 'extra-17-certbot-dns-alias-certbot3') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3f/e8/7325d258199b159eb2c03fe32107533e2832e70e63f4fb88a6aa00023201/pyopenssl-26.4.0.tar.gz", hash = "sha256:28dfcce0162b9211413e26dfbfdf1d24317fbeba18fc93c12400a1856b2a0bc7", size = 182046, upload-time = "2026-08-01T19:50:50.512Z" }
 wheels = [
@@ -3231,9 +3206,7 @@ name = "pyproject-api"
 version = "1.9.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "packaging", marker = "python_full_version < '3.10'" },
@@ -3276,9 +3249,7 @@ name = "pytest"
 version = "8.4.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
@@ -3322,11 +3293,11 @@ name = "pytest-cov"
 version = "7.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "coverage", version = "7.10.7", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version < '3.10'" },
-    { name = "coverage", version = "7.16.2", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version >= '3.10'" },
+    { name = "coverage", version = "7.10.7", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "coverage", version = "7.16.2", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "pluggy" },
-    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b1/51/a849f96e117386044471c8ec2bd6cfebacda285da9525c9106aeb28da671/pytest_cov-7.1.0.tar.gz", hash = "sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2", size = 55592, upload-time = "2026-03-21T20:11:16.284Z" }
 wheels = [
@@ -3338,8 +3309,8 @@ name = "python-discovery"
 version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock", version = "3.19.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "filelock", version = "4.0.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "filelock", version = "3.19.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "filelock", version = "4.0.12", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0c/57/250bd238b966cece44328235eb85290045d059265fdaf7527a3a958123db/python_discovery-1.6.1.tar.gz", hash = "sha256:cf87d3627dfb4412437fdd5b13eae402607722998d21567993aedbc59b23c15e", size = 84338, upload-time = "2026-09-18T01:31:53.971Z" }
 wheels = [
@@ -3397,9 +3368,7 @@ name = "readme-renderer"
 version = "44.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "docutils", marker = "python_full_version < '3.10'" },
@@ -3435,15 +3404,13 @@ name = "requests"
 version = "2.32.5"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "certifi", marker = "python_full_version < '3.10'" },
-    { name = "charset-normalizer", marker = "python_full_version < '3.10'" },
-    { name = "idna", marker = "python_full_version < '3.10'" },
-    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "certifi", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "charset-normalizer", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
@@ -3460,10 +3427,10 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "certifi", marker = "python_full_version >= '3.10'" },
-    { name = "charset-normalizer", marker = "python_full_version >= '3.10'" },
-    { name = "idna", marker = "python_full_version >= '3.10'" },
-    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "certifi", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "charset-normalizer", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "idna", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
 wheels = [
@@ -3475,8 +3442,8 @@ name = "requests-toolbelt"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f3/61/d7545dafb7ac2230c70d38d31cbfe4cc64f7144dc41f6e4e4b78ecd9f5bb/requests-toolbelt-1.0.0.tar.gz", hash = "sha256:7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6", size = 206888, upload-time = "2023-05-01T04:11:33.229Z" }
 wheels = [
@@ -3497,8 +3464,8 @@ name = "rich"
 version = "15.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "markdown-it-py", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "markdown-it-py", version = "4.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "markdown-it-py", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "markdown-it-py", version = "4.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "pygments" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/8f/0722ca900cc807c13a6a0c696dacf35430f72e0ec571c4275d2371fca3e9/rich-15.0.0.tar.gz", hash = "sha256:edd07a4824c6b40189fb7ac9bc4c52536e9780fbbfbddf6f1e2502c31b068c36", size = 230680, upload-time = "2026-04-12T08:24:00.75Z" }
@@ -3536,9 +3503,7 @@ name = "secretstorage"
 version = "3.3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "cryptography", version = "44.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -3580,8 +3545,8 @@ name = "tencentcloud-sdk-python-common"
 version = "3.1.186"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a6/3b/fa9c0b5fcfe2386356664a9c1d60e06f75519fb69068354832933dd295e6/tencentcloud_sdk_python_common-3.1.186.tar.gz", hash = "sha256:6ed9ebbe454e0ef8f4ba5e8fabfb0f0d8f8f4531149879ee27d57f24961329f8", size = 22663, upload-time = "2026-10-04T19:59:46.279Z" }
 wheels = [
@@ -3668,9 +3633,7 @@ name = "tox"
 version = "4.30.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "cachetools", version = "6.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -3723,9 +3686,7 @@ name = "tox-uv"
 version = "1.28.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
     { name = "packaging", marker = "python_full_version < '3.10'" },
@@ -3788,15 +3749,15 @@ dependencies = [
     { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "keyring", marker = "platform_machine != 'ppc64le' and platform_machine != 's390x'" },
     { name = "packaging" },
-    { name = "readme-renderer", version = "44.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "readme-renderer", version = "46.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "readme-renderer", version = "44.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "readme-renderer", version = "46.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "requests-toolbelt" },
     { name = "rfc3986" },
     { name = "rich" },
-    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "urllib3", version = "2.6.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "urllib3", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e0/a8/949edebe3a82774c1ec34f637f5dd82d1cf22c25e963b7d63771083bbee5/twine-6.2.0.tar.gz", hash = "sha256:e5ed0d2fd70c9959770dce51c8f39c8945c574e18173a7b81802dab51b4b75cf", size = 172262, upload-time = "2025-09-04T15:43:17.255Z" }
 wheels = [
@@ -3817,12 +3778,10 @@ name = "typing-inspection"
 version = "0.4.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.10'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/55/e3/70399cb7dd41c10ac53367ae42139cf4b1ca5f36bb3dc6c9d33acdb43655/typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464", size = 75949, upload-time = "2025-10-01T02:14:41.687Z" }
 wheels = [
@@ -3839,7 +3798,7 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version >= '3.10'" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a3/26/b09b8010994eccc3c09092e6b34058f36a460eea2d4c3e8b910c695975a0/typing_inspection-0.4.4.tar.gz", hash = "sha256:547274fa6b0a561ccf549cc9524b999a578e737d015d8709d021f9d0d13bea47", size = 76928, upload-time = "2026-08-12T12:37:25.997Z" }
 wheels = [
@@ -3860,12 +3819,10 @@ name = "tzlocal"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "tzdata", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
+    { name = "tzdata", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version >= '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'win32' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8b/2e/c14812d3d4d9cd1773c6be938f89e5735a1f11a9f184ac3639b93cef35d5/tzlocal-5.3.1.tar.gz", hash = "sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd", size = 30761, upload-time = "2025-03-05T21:17:41.549Z" }
 wheels = [
@@ -3882,7 +3839,7 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "tzdata", marker = "python_full_version >= '3.10' and sys_platform == 'win32'" },
+    { name = "tzdata", marker = "(python_full_version >= '3.10' and sys_platform == 'win32') or (python_full_version < '3.10' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev') or (sys_platform != 'win32' and extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/81/5b/879b2f932adfa7a053c360d50bc896c977fa6426109185f7c12ebdd0cb9d/tzlocal-5.4.4.tar.gz", hash = "sha256:8dbb8660838688a7b6ba4fed31d18dedf842afb4d47ca050d6d891c2c15f3be4", size = 31170, upload-time = "2026-06-29T08:03:40.026Z" }
 wheels = [
@@ -3894,9 +3851,7 @@ name = "urllib3"
 version = "2.6.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
 wheels = [
@@ -3949,11 +3904,11 @@ version = "21.14.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "distlib" },
-    { name = "filelock", version = "3.19.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "filelock", version = "4.0.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "filelock", version = "3.19.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "filelock", version = "4.0.12", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "packaging" },
-    { name = "platformdirs", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "platformdirs", version = "4.12.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "platformdirs", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "platformdirs", version = "4.12.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.10' and extra == 'group-17-certbot-dns-alias-dev') or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
     { name = "python-discovery" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
@@ -3967,9 +3922,7 @@ name = "websocket-client"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2c/41/aa4bf9664e4cda14c3b39865b12251e8e7d239f4cd0e3cc1b6c2ccde25c1/websocket_client-1.9.0.tar.gz", hash = "sha256:9e813624b6eb619999a97dc7958469217c3176312b3a16a4bd1bc7e08a46ec98", size = 70576, upload-time = "2025-10-07T21:16:36.495Z" }
 wheels = [
@@ -3995,14 +3948,12 @@ name = "yarl"
 version = "1.22.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "idna", marker = "python_full_version < '3.10'" },
-    { name = "multidict", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "propcache", version = "0.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "idna", marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "multidict", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "propcache", version = "0.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/57/63/0c6ebca57330cd313f6102b16dd57ffaf3ec4c83403dcb45dbd15c6f3ea1/yarl-1.22.0.tar.gz", hash = "sha256:bebf8557577d4401ba8bd9ff33906f1376c877aa78d1fe216ad01b4d6745af71", size = 187169, upload-time = "2025-10-06T14:12:55.963Z" }
 wheels = [
@@ -4147,9 +4098,9 @@ resolution-markers = [
     "(python_full_version >= '3.10' and python_full_version < '3.14' and sys_platform != 'emscripten') or (python_full_version >= '3.10' and python_full_version < '3.12' and sys_platform == 'emscripten')",
 ]
 dependencies = [
-    { name = "idna", marker = "python_full_version >= '3.10'" },
-    { name = "multidict", version = "6.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "propcache", version = "0.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "idna", marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "multidict", version = "6.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
+    { name = "propcache", version = "0.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-17-certbot-dns-alias-certbot3' and extra == 'group-17-certbot-dns-alias-dev')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/75/16/e8be8e2fb175bbf41a0680381a319f1199fae256588241a2ac8677eafb49/yarl-1.25.1.tar.gz", hash = "sha256:03dd38de09bc213e9a8b29761eec33ee1d5318dac0e49d8af36e4d27830e23a7", size = 246245, upload-time = "2026-09-15T19:35:02.264Z" }
 wheels = [
@@ -4297,9 +4248,7 @@ name = "zipp"
 version = "3.23.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.9.2' and python_full_version < '3.10'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2'",
-    "python_full_version <= '3.9'",
+    "python_full_version < '3.10'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/30/21/093488dfc7cc8964ded15ab726fad40f25fd3d788fd741cc1c5a17d78ee8/zipp-3.23.1.tar.gz", hash = "sha256:32120e378d32cd9714ad503c1d024619063ec28aad2248dc6672ad13edfa5110", size = 25965, upload-time = "2026-04-13T23:21:46.6Z" }
 wheels = [

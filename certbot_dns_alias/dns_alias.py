@@ -8,6 +8,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+import dns.exception
 import dns.resolver
 from certbot import errors
 from certbot.plugins import dns_common
@@ -84,17 +85,27 @@ class Authenticator(DNSAuthenticator):
         if propagation is None or propagation < 0:
             raise errors.PluginError("--dns-alias-propagation-seconds must be non-negative")
 
-        resolver = dns.resolver.Resolver()
-        if self.conf("resolvers"):
+        addresses = None
+        configured_resolvers = self.conf("resolvers")
+        if configured_resolvers is not None:
             try:
-                resolver.nameservers = [
+                addresses = [
                     str(ipaddress.ip_address(address.strip()))
-                    for address in self.conf("resolvers").split(",")
+                    for address in configured_resolvers.split(",")
                 ]
             except ValueError as exc:
                 raise errors.PluginError(
                     "--dns-alias-resolvers must be comma-separated IPv4/IPv6 addresses"
                 ) from exc
+        try:
+            resolver = dns.resolver.Resolver(configure=addresses is None)
+            if addresses is not None:
+                resolver.nameservers = addresses
+        except (dns.exception.DNSException, OSError, ValueError):
+            raise errors.PluginError(
+                "Unable to initialize DNS resolvers; check system DNS configuration "
+                "or set --dns-alias-resolvers to IPv4/IPv6 addresses"
+            ) from None
         self._resolver = CnameResolver(
             resolver,
             max_depth=self.conf("cname-max-depth"),

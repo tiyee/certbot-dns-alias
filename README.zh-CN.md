@@ -65,11 +65,19 @@ uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 插件按 Python 版本声明宿主依赖：Python 3.9 使用 Certbot 3，Python 3.14 使用 Certbot 5，
 Python 3.10–3.13 可使用 Certbot 3 或 5。
 已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
-如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
+如果需要严格保持宿主版本，可在安装时显式固定实际版本。
+**所有 Certbot 3 宿主都必须使用 `certbot3` extra**，它将 ACME 限定为 3.x，
+并将 pyOpenSSL 限定在 25 以下。旧版 josepy 需要已移除的 `X509Req` API，
+Python 3.10–3.13 上也需要此约束。例如宿主为 `3.0.0`：
 
 ```bash
-python -m pip install 'certbot==3.0.0' certbot-dns-alias
+python -m pip install 'certbot==3.0.0' 'certbot-dns-alias[certbot3]'
 ```
+
+安装别名支持相同选项：`certbot-dns-delegation[certbot3]`。
+Certbot 5 的默认安装不会施加上述旧版 TLS 依赖上限。
+这个 extra 用于兼容旧宿主，并不能修复旧依赖的安全问题；条件允许时，应使用仍受维护的
+Certbot 5 宿主。该 extra 的约束适用于 Python 3.9–3.13；Python 3.14 仅支持 Certbot 5。
 
 如部署环境还固定了 ACME、pyOpenSSL 等依赖，应同时使用该环境的 constraints 文件。
 插件与 Certbot 必须处于同一 Python 环境；已有 snap/docker 版 Certbot 时，需按对应安装方式
