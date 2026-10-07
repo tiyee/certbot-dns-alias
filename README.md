@@ -45,6 +45,10 @@ Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following comb
 | 3.10–3.13 | Supported | Supported |
 | 3.14 | Older josepy cannot be imported | Supported |
 
+Certbot 4.x is not supported and is excluded from the package dependencies.
+DNS names use non-transitional IDNA2008 normalization; Unicode names and their Punycode
+forms identify the same zone (for example, `faß.de` and `xn--fa-hia.de`).
+
 The three official provider SDKs and the bundled GoDaddy REST client are installed with the plugin.
 
 ## Installation
@@ -77,7 +81,7 @@ Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
 When the installed host satisfies these requirements, pip's default upgrade strategy only
 upgrades dependencies when needed. To preserve an exact host version, pin it explicitly during
 installation. **Every Certbot 3 host must use the `certbot3` extra**, which also constrains
-ACME to 3.x and pyOpenSSL below 25. Older josepy requires the removed `X509Req` API,
+ACME to 3.x and pyOpenSSL to `>=24.3,<25`. Older josepy requires the removed `X509Req` API,
 including on Python 3.10–3.13. For example, for a `3.0.0` host:
 
 ```bash
@@ -358,3 +362,8 @@ Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Security and release notes
+
+See the [security policy](SECURITY.md) for private vulnerability reporting and legacy
+host limitations, and the [changelog](CHANGELOG.md) for changes and upgrade notes.

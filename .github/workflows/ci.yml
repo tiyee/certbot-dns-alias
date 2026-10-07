@@ -93,3 +93,30 @@ jobs:
         run: uv run --no-sync python scripts/check_installation.py --python .tox/${{ matrix.tox-env }}/bin/python
       - name: Check clean host installation and public lifecycle
         run: uv run --no-sync python scripts/check_installation.py --fresh --python .tox/${{ matrix.tox-env }}/bin/python
+
+  lower-bounds:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Exercise both Python boundaries of each supported host series.
+        include:
+          - python: "3.9"
+            certbot: "3"
+          - python: "3.13"
+            certbot: "3"
+          - python: "3.10"
+            certbot: "5"
+          - python: "3.14"
+            certbot: "5"
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: latest
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run --no-sync python scripts/build_distributions.py
+      - name: Test installed wheel at dependency lower bounds
+        run: uv run --no-sync python scripts/check_lower_bounds.py --python ${{ matrix.python }} --certbot ${{ matrix.certbot }}

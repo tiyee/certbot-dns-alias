@@ -37,6 +37,10 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 | 3.10–3.13 | 支持 | 支持 |
 | 3.14 | 旧版 josepy 无法导入 | 支持 |
 
+不支持 Certbot 4.x，包依赖已明确排除该版本系列。
+DNS 名称使用非过渡式 IDNA2008 规范化；Unicode 名称与对应的 Punycode 表示指向同一区域，
+例如 `faß.de` 与 `xn--fa-hia.de`。
+
 三个官方服务商 SDK 和包内 GoDaddy REST 客户端均随插件安装。
 
 ## 安装
@@ -67,7 +71,7 @@ Python 3.10–3.13 可使用 Certbot 3 或 5。
 已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
 如果需要严格保持宿主版本，可在安装时显式固定实际版本。
 **所有 Certbot 3 宿主都必须使用 `certbot3` extra**，它将 ACME 限定为 3.x，
-并将 pyOpenSSL 限定在 25 以下。旧版 josepy 需要已移除的 `X509Req` API，
+并将 pyOpenSSL 限定为 `>=24.3,<25`。旧版 josepy 需要已移除的 `X509Req` API，
 Python 3.10–3.13 上也需要此约束。例如宿主为 `3.0.0`：
 
 ```bash
@@ -326,3 +330,8 @@ Python 3.9 安装 HTTPX2 2.0；Python 3.10–3.14 可使用更新的 2.x 版本�
 ## License
 
 MIT，见 [LICENSE](LICENSE)。
+
+## 安全与版本记录
+
+私密漏洞报告方式及旧版宿主的安全限制见[安全政策](SECURITY.md)，
+版本变化和升级注意事项见[变更记录](CHANGELOG.md)。

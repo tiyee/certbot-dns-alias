@@ -124,6 +124,30 @@ def test_discovery_cached_and_label_boundary(provider):
         router.find("notdelegate.example.net")
 
 
+def test_unicode_allowlist_matches_alabel_without_merging_distinct_zones(tmp_path, monkeypatch):
+    aliyun = Mock(spec=DNSProvider)
+    tencent = Mock(spec=DNSProvider)
+    monkeypatch.setattr("certbot_dns_alias.config.AliyunDNSProvider", Mock(return_value=aliyun))
+    monkeypatch.setattr("certbot_dns_alias.config.TencentDNSProvider", Mock(return_value=tencent))
+    conf = credentials(
+        tmp_path,
+        "dns_alias_provider=auto\n"
+        "dns_alias_aliyun_access_key_id=id\n"
+        "dns_alias_aliyun_access_key_secret=secret\n"
+        "dns_alias_aliyun_zones=faß.de\n"
+        "dns_alias_tencent_secret_id=id\n"
+        "dns_alias_tencent_secret_key=secret\n"
+        "dns_alias_tencent_zones=fass.de\n",
+    )
+    validate_credentials(conf)
+    router = build_router(conf)
+    assert router.find("_acme-challenge.xn--fa-hia.de") == (aliyun, "xn--fa-hia.de")
+    assert router.find("_acme-challenge.Faß.DE.") == (aliyun, "xn--fa-hia.de")
+    assert router.find("_acme-challenge.fass.de") == (tencent, "fass.de")
+    aliyun.list_zones.assert_not_called()
+    tencent.list_zones.assert_not_called()
+
+
 def test_same_zone_on_two_providers_is_ambiguous(provider):
     other = Mock(spec=DNSProvider)
     other.list_zones.return_value = ["delegate.example.net"]
