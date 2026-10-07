@@ -15,6 +15,8 @@ Changes apply to both `certbot-dns-alias` and `certbot-dns-delegation` unless no
 
 ### Changed
 
+- Report accepted Python 3.9 dependency findings as warnings with full advisory tables in CI
+  logs and job summaries. Modern-host findings remain blocking, and audit errors remain explicit.
 - Use HTTPX for the GoDaddy REST client as well as the Cloudflare SDK, removing the HTTPX2
   dependency and its separate transport stack. Custom GoDaddy transports now use
   `httpx.BaseTransport` and `httpx.MockTransport`.

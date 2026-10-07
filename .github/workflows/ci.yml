@@ -30,12 +30,20 @@ jobs:
       - name: Audit dependencies
         # Legacy TLS constraints retain known advisories; see SECURITY.md.
         continue-on-error: ${{ matrix.python == '3.9' }}
+        env:
+          AUDIT_PYTHON_VERSION: ${{ matrix.python }}
         run: |
+          audit_exit=0
+          rm -f dependency-audit.json
           uv tool run --python 3.13 pip-audit==2.10.1 \
             --requirement audit-requirements.txt \
             --no-deps --disable-pip --strict --progress-spinner off \
             --cache-dir "${{ runner.temp }}/pip-audit-cache" \
-            --format json --output dependency-audit.json
+            --format json --output dependency-audit.json || audit_exit=$?
+          uv run --no-sync python scripts/report_dependency_audit.py \
+            --report dependency-audit.json \
+            --python-version "$AUDIT_PYTHON_VERSION" \
+            --exit-code "$audit_exit"
       - name: Save dependency audit report
         if: ${{ always() }}
         uses: actions/upload-artifact@v7.0.1
