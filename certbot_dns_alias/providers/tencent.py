@@ -1,5 +1,7 @@
 """Tencent Cloud DNSPod adapter using the official API v20210323 SDK."""
 
+from __future__ import annotations
+
 from certbot import errors
 from tencentcloud.common.credential import Credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException

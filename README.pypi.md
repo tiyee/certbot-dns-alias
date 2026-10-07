@@ -29,8 +29,15 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 
 ## 安装
 
-需要 Python **3.10+**，支持 **Certbot 3.x 和 5.x**。插件由宿主 Certbot 加载，
-必须安装在宿主的同一 Python 环境中。
+支持 Python **3.9–3.14**、**Certbot 3.x 和 5.x**，具体组合如下：
+
+| Python | Certbot 3.x | Certbot 5.x |
+| --- | --- | --- |
+| 3.9 | 支持 | 上游要求 Python ≥3.10 |
+| 3.10–3.13 | 支持 | 支持 |
+| 3.14 | 旧版 josepy 无法导入 | 支持 |
+
+插件由宿主 Certbot 加载，必须安装在宿主的同一 Python 环境中。
 
 在已有 Certbot 的 Python 环境中安装：
 
@@ -52,7 +59,8 @@ python -m pip install certbot-dns-delegation
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-插件声明的 `certbot>=3.0,<6` 是兼容范围，同一份插件支持 Certbot 3.x 和 5.x。
+插件按 Python 版本声明宿主依赖：Python 3.9 使用 Certbot 3，Python 3.14 使用 Certbot 5，
+Python 3.10–3.13 可使用 Certbot 3 或 5。
 如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
 
 ```bash

@@ -29,21 +29,17 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 - 清理使用创建时保存的目标区域和记录 ID；CNAME 发生变化也不会改删其他区域。
 - CNAME 环路、超深链、DNS 超时、权限错误和区域归属冲突会产生明确错误。
 
-需要 Python **3.10+**，支持 **Certbot 3.x 和 5.x**。两个云服务商 SDK 均随插件安装。
+支持 Python **3.9–3.14**、**Certbot 3.x 和 5.x**，具体组合如下：
+
+| Python | Certbot 3.x | Certbot 5.x |
+| --- | --- | --- |
+| 3.9 | 支持 | 上游要求 Python ≥3.10 |
+| 3.10–3.13 | 支持 | 支持 |
+| 3.14 | 旧版 josepy 无法导入 | 支持 |
+
+两个云服务商 SDK 均随插件安装。
 
 ## 安装
-
-### 本地开发（uv）
-
-```bash
-uv sync --locked
-uv run certbot plugins --text
-uv run certbot --help dns-alias
-```
-
-`uv.lock` 已纳入版本管理，`uv sync` 会创建 `.venv` 并以 editable 模式安装插件。
-
-### 从 PyPI 安装（本项目发布后）
 
 在宿主 Certbot 所在的 Python 环境中安装插件：
 
@@ -66,7 +62,8 @@ python -m pip install certbot-dns-delegation
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-插件声明 `certbot>=3.0,<6`，表示支持的宿主版本范围。同一份插件可供 Certbot 3.x 和 5.x 使用。
+插件按 Python 版本声明宿主依赖：Python 3.9 使用 Certbot 3，Python 3.14 使用 Certbot 5，
+Python 3.10–3.13 可使用 Certbot 3 或 5。
 已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
 如果需要严格保持宿主版本，可在安装时显式固定实际版本，例如宿主为 `3.0.0`：
 
@@ -156,7 +153,7 @@ certbot certonly \
 ```
 
 测试通过后去掉 `--staging` 申请正式证书。域名和邮箱应替换为自己的值。
-使用宿主环境中的 `certbot` 执行命令；在仓库开发环境中验证时可使用 `uv run certbot`。
+使用宿主环境中的 `certbot` 执行命令。
 Certbot 默认写入 `/etc/letsencrypt`、`/var/lib/letsencrypt` 和 `/var/log/letsencrypt`，
 运行账号需要相应权限；也可使用 `--config-dir`、`--work-dir` 和 `--logs-dir` 指定目录。
 
@@ -190,6 +187,9 @@ TTL 与传播等待时间不同。第一次创建目标主机可能受 DNS 负�
 不同业务域名应使用不同委托主机名；普通域名与其泛域名会共用 `_acme-challenge` 名称，
 插件会保留本次申请需要的多个 TXT 值。插件不会更新整个 TXT RRset。
 
+创建状态保存在当前 Certbot 进程内；进程被强制终止、创建成功但响应丢失或删除失败时，可能留有 TXT，
+需要在委托区域手动清理。清理失败会记录警告并继续清理其他挑战。
+
 ## API 权限
 
 阿里云需要：
@@ -210,111 +210,6 @@ TTL 与传播等待时间不同。第一次创建目标主机可能受 DNS 负�
 [阿里云 AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord)、
 [阿里云 DescribeDomains](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-describedomains) 和
 [腾讯云 DescribeRecordList](https://cloud.tencent.com/document/api/1427/56166)。
-
-## 测试和构建
-
-```bash
-uv sync --locked
-uv run ruff check .
-uv run ruff format --check .
-uv run pytest --cov=certbot_dns_alias --cov-report=term-missing
-uv run python scripts/build_distributions.py
-uv run twine check --strict dist/alias/* dist/delegation/*
-```
-
-测试通过 mock 官方 SDK 和 DNS 响应运行，不需要真实 API 密钥，不会写入云端 DNS。
-包含 Certbot 公共挑战生命周期测试、CNAME 链 / 环路 / 超时 / NXDOMAIN、区域匹配、
-两个 SDK 的真实请求模型和分页、已有 TXT 保留、多挑战共享与清理失败处理。
-多版本兼容性使用 `tox` 创建独立宿主环境，每个环境安装构建后的插件 wheel，再运行同一套 `pytest`。
-这一测试方式也用于 [Certbot 官方开发流程](https://eff-certbot.readthedocs.io/en/stable/contributing.html#testing)。
-
-```bash
-# 安装完整矩阵需要的 Python 解释器
-uv python install 3.10 3.11 3.12 3.13 3.14
-uv run tox list
-uv run tox run
-
-# 只验证一个宿主组合，或只运行部分测试
-uv run tox run -e py313-certbot3
-uv run tox run -e py313-certbot5 -- -q "$(pwd)/tests/test_authenticator.py"
-```
-
-tox 环境中的工作目录独立于源码目录，指定测试文件时使用绝对路径。
-`tox-uv` 使用 uv 创建环境和安装依赖，各环境的 Certbot 版本由 `tox.ini` 决定。
-
-| tox 环境 | Python | 宿主 Certbot |
-| --- | --- | --- |
-| `py310-certbot3`、`py313-certbot3` | 3.10、3.13 | 固定 3.0.0，与 ACME 3.0.0 搭配 |
-| `py310-certbot5` 到 `py314-certbot5` | 3.10–3.14 | 5.x 范围内可用版本，与 ACME 5.x 搭配 |
-
-CI 通过同一份 tox 配置验证上述七个组合，并保留默认锁定环境中的覆盖率、格式和打包检查。
-在 Python 3.13 的 Certbot 3 和 5 环境中，还验证安装别名的依赖解析、插件发现、
-入口点唯一性，以及卸载别名后主插件仍可加载：
-
-```bash
-# 先构建两套安装包，并创建上述两个 tox 宿主环境
-uv run python scripts/check_installation.py --python .tox/py313-certbot3/bin/python
-uv run python scripts/check_installation.py --python .tox/py313-certbot5/bin/python
-```
-
-Certbot 3.0 的旧 ACME/josepy 依赖需要 `pyOpenSSL<25`；兼容性测试使用这一旧版本依赖组合。
-`uv.lock` 锁定的是仓库开发和默认 CI 的依赖环境；发布包通过依赖范围声明宿主兼容性，
-不会将开发环境锁定的 Certbot 版本强制施加到已有宿主环境。
-
-目录结构：
-
-```text
-certbot_dns_alias/
-  dns_alias.py        # Certbot Authenticator、TXT 所有权和清理状态
-  dns.py              # CNAME 解析、DNS 名称和相对主机记录
-  config.py           # INI 校验和服务商构建
-  providers/
-    base.py           # 服务商接口及区域路由
-    aliyun.py         # 阿里云 OpenAPI SDK
-    tencent.py        # 腾讯云 DNSPod SDK
-examples/             # 三种模式的凭据示例
-tests/                # 无网络单元和生命周期测试
-scripts/              # 双包构建及宿主安装检查
-```
-
-创建和删除 API 不自动重试写请求，避免响应丢失后的重复创建。清理失败会记录警告并继续清理其他挑战。
-创建状态保存在当前 Certbot 进程内；进程被强制终止、创建成功但响应丢失或删除失败时，可能留有 TXT，
-需要在委托区域手动清理。插件不持久化密钥或挑战值，也不会通过重新解析 CNAME 来猜测待删除记录。
-
-## 发布到 PyPI
-
-同一版本发布两个包，Certbot 入口点为 `dns-alias`：
-
-- `certbot-dns-alias` 包含插件代码和入口点，产物位于 `dist/alias/`。
-- `certbot-dns-delegation` 仅包含包元数据，精确依赖同版本主包，产物位于 `dist/delegation/`。
-
-别名包的版本、Python 要求和项目元数据从主包 `pyproject.toml` 自动生成，
-PyPI Description 复用 `README.pypi.md` 并替换标题，无需维护第二份版本号或插件代码。
-
-手动发布前，在 `pyproject.toml` 更新版本，再运行 `uv lock`、测试和构建。可先上传 TestPyPI：
-
-```bash
-uv run python scripts/build_distributions.py
-uv publish --publish-url https://test.pypi.org/legacy/ dist/alias/*
-uv publish --publish-url https://test.pypi.org/legacy/ dist/delegation/*
-# 正式发布
-uv publish dist/alias/*
-uv publish dist/delegation/*
-```
-
-上传时配置有权发布对应项目的 `UV_PUBLISH_TOKEN`。构建脚本会更新两个产物目录，避免混入旧版本。
-单独运行 `uv build` 仍只构建主包。
-
-仓库包含 `.github/workflows/publish.yml`，GitHub Release 发布时会验证标签与项目版本一致
-（例如版本 `0.1.2` 对应 `v0.1.2`），运行测试、构建两个包的 wheel/sdist，
-通过 PyPI Trusted Publishing 先上传主包，再上传别名包。
-需先在 PyPI 的两个项目中分别为仓库 `tiyee/certbot-dns-alias` 配置相同的 Trusted Publisher：
-owner 为 `tiyee`，repository 为 `certbot-dns-alias`，工作流文件名为 `publish.yml`，
-environment 为 `pypi`；尚未创建的项目使用对应包名配置 pending publisher。
-PyPI 支持 [多个项目共用同一发布工作流](https://docs.pypi.org/trusted-publishers/internals/)。
-GitHub 仓库中创建同名 environment，可按需要设置发布审核。预发布 Release 只构建，不上传正式 PyPI。
-两次上传并非原子操作；工作流跳过已存在的产物，部分上传失败后可以重跑发布任务补传。
-PyPI 已发布的同版本产物无法覆盖，修改已发布包的内容需增加版本号。
 
 ## License
 

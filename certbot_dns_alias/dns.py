@@ -1,5 +1,7 @@
 """DNS name handling and bounded CNAME resolution."""
 
+from __future__ import annotations
+
 import logging
 import re
 import time
