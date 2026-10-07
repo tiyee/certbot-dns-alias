@@ -24,13 +24,28 @@ If you receive no response, follow up through the same private email channel.
 | Release line | Security maintenance |
 | --- | --- |
 | Current development version | Reports accepted; fixes may change before release |
-| Latest stable 1.x release, once available | Target for security fixes |
+| Latest stable 1.x release (currently 1.0.0) | Target for security fixes |
 | Older patch versions and 0.x test releases | Upgrade to the latest supported release; no promised backports |
 
-Version 1.0.0 is currently unreleased. See [CHANGELOG.md](CHANGELOG.md) for changes and upgrade
+Version 1.0.0 is the current stable release. See [CHANGELOG.md](CHANGELOG.md) for changes and upgrade
 notes. The Python/Certbot compatibility table in [README.md](README.md) describes functional
 compatibility; it is not a guarantee that every third-party dependency is free of advisories.
-Certbot 4 is outside the supported host range.
+Certbot 4 is supported on Python 3.9–3.14 without the legacy Certbot 3 TLS constraints.
+
+## Dependency auditing
+
+CI runs [pip-audit](https://github.com/pypa/pip-audit) against the runtime and development
+dependencies installed by `uv sync --locked` on each supported Python version, 3.9–3.14.
+The auditor runs in an isolated Python 3.13 tool environment and scans the frozen package
+versions without resolving or upgrading them. The local editable package is excluded.
+Each job uploads its dependency inventory and JSON audit report as a
+`dependency-audit-py<version>` artifact, retained for 30 days, including when the audit fails.
+
+Findings or audit errors on Python 3.10–3.14 fail CI and gate PyPI publishing through the
+reusable CI workflow. Python 3.9 audits are non-blocking because its required Certbot 3 TLS
+constraints retain known advisories described below; reports still require review. No
+advisories are suppressed. This check covers the locked development environments, not every
+dependency combination allowed by the published package or every deployment environment.
 
 ## Legacy Certbot 3 environments
 

@@ -22,7 +22,9 @@ def main() -> None:
     parser.add_argument(
         "--python", default=sys.executable, help="Host interpreter or Python version"
     )
-    parser.add_argument("--certbot", required=True, choices=["3", "5"], help="Certbot host series")
+    parser.add_argument(
+        "--certbot", required=True, choices=["3", "4", "5"], help="Certbot host series"
+    )
     args = parser.parse_args()
     wheels = list((ROOT / "dist" / "alias").glob("*.whl"))
     if len(wheels) != 1:

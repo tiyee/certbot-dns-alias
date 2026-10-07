@@ -1,6 +1,6 @@
 """Centralize host compatibility while inheriting Certbot's public lifecycle.
 
-DNSAuthenticator handles Certbot 3's domain and Certbot 5's identifier APIs.
+DNSAuthenticator handles Certbot 3/4's domain and Certbot 5's identifier APIs.
 Keep that behavior in the host instead of copying private implementations.
 """
 

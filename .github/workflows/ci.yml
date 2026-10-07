@@ -9,6 +9,44 @@ permissions:
   contents: read
 
 jobs:
+  dependency-audit:
+    name: Dependency audit (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: latest
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - name: Export installed dependencies
+        run: uv pip freeze --exclude-editable --python .venv/bin/python > audit-requirements.txt
+      - name: Audit dependencies
+        # Legacy TLS constraints retain known advisories; see SECURITY.md.
+        continue-on-error: ${{ matrix.python == '3.9' }}
+        run: |
+          uv tool run --python 3.13 pip-audit==2.10.1 \
+            --requirement audit-requirements.txt \
+            --no-deps --disable-pip --strict --progress-spinner off \
+            --cache-dir "${{ runner.temp }}/pip-audit-cache" \
+            --format json --output dependency-audit.json
+      - name: Save dependency audit report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: dependency-audit-py${{ matrix.python }}
+          path: |
+            audit-requirements.txt
+            dependency-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -68,6 +106,18 @@ jobs:
             tox-env: py312-certbot3
           - python: "3.13"
             tox-env: py313-certbot3
+          - python: "3.9"
+            tox-env: py39-certbot4
+          - python: "3.10"
+            tox-env: py310-certbot4
+          - python: "3.11"
+            tox-env: py311-certbot4
+          - python: "3.12"
+            tox-env: py312-certbot4
+          - python: "3.13"
+            tox-env: py313-certbot4
+          - python: "3.14"
+            tox-env: py314-certbot4
           - python: "3.10"
             tox-env: py310-certbot5
           - python: "3.11"
@@ -105,6 +155,10 @@ jobs:
             certbot: "3"
           - python: "3.13"
             certbot: "3"
+          - python: "3.9"
+            certbot: "4"
+          - python: "3.14"
+            certbot: "4"
           - python: "3.10"
             certbot: "5"
           - python: "3.14"

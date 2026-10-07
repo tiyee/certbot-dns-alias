@@ -2,7 +2,24 @@
 
 Changes apply to both `certbot-dns-alias` and `certbot-dns-delegation` unless noted otherwise.
 
-## 1.0.0 — Unreleased
+## Unreleased
+
+### Added
+
+- Certbot 4.x support on Python 3.9–3.14, including installed-wheel lifecycle tests,
+  alias installation/removal checks, and dependency lower-bound checks in CI.
+- Allow modern TLS dependencies on Python 3.9 Certbot 4 hosts; retain legacy TLS constraints
+  through the `certbot3` extra and in the locked Python 3.9 development environment.
+- Dependency audits of locked Python 3.9–3.14 environments, with retained JSON reports and
+  release gating on Python 3.10–3.14; legacy Python 3.9 findings remain non-blocking.
+
+### Changed
+
+- Use HTTPX for the GoDaddy REST client as well as the Cloudflare SDK, removing the HTTPX2
+  dependency and its separate transport stack. Custom GoDaddy transports now use
+  `httpx.BaseTransport` and `httpx.MockTransport`.
+
+## 1.0.0
 
 ### Added
 

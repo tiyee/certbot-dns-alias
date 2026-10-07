@@ -5,7 +5,7 @@ English | [Simplified Chinese](README.zh-CN.md)
 A Certbot DNS-01 plugin that manages TXT validation records through CNAME delegation
 with Alibaba Cloud DNS, Tencent Cloud DNSPod, Cloudflare, or GoDaddy.
 
-**Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
+**Supports Certbot 3.x, 4.x, and 5.x** with a single plugin codebase for all three host series.
 
 Two installation names are available: `certbot-dns-alias` and `certbot-dns-delegation`.
 The latter is an installation alias that automatically installs the same version of the main
@@ -37,15 +37,14 @@ target's managed zone.
 - Reports clear errors for CNAME loops, excessive chain depth, DNS timeouts, permission failures,
   and ambiguous zone ownership.
 
-Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following combinations:
+Supports Python **3.9–3.14** and **Certbot 3.x, 4.x, and 5.x** in the following combinations:
 
-| Python | Certbot 3.x | Certbot 5.x |
-| --- | --- | --- |
-| 3.9 | Supported | Upstream requires Python ≥3.10 |
-| 3.10–3.13 | Supported | Supported |
-| 3.14 | Older josepy cannot be imported | Supported |
+| Python | Certbot 3.x | Certbot 4.x | Certbot 5.x |
+| --- | --- | --- | --- |
+| 3.9 | Supported | Supported | Upstream requires Python ≥3.10 |
+| 3.10–3.13 | Supported | Supported | Supported |
+| 3.14 | Older josepy cannot be imported | Supported | Supported |
 
-Certbot 4.x is not supported and is excluded from the package dependencies.
 DNS names use non-transitional IDNA2008 normalization; Unicode names and their Punycode
 forms identify the same zone (for example, `faß.de` and `xn--fa-hia.de`).
 
@@ -76,8 +75,8 @@ environment explicitly with uv:
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-Host dependency requirements depend on the Python version: Python 3.9 uses Certbot 3,
-Python 3.14 uses Certbot 5, and Python 3.10–3.13 can use Certbot 3 or 5.
+Host dependency requirements depend on the Python version: Python 3.9 can use Certbot 3 or 4,
+Python 3.14 can use Certbot 4 or 5, and Python 3.10–3.13 can use Certbot 3, 4, or 5.
 When the installed host satisfies these requirements, pip's default upgrade strategy only
 upgrades dependencies when needed. To preserve an exact host version, pin it explicitly during
 installation. **Every Certbot 3 host must use the `certbot3` extra**, which also constrains
@@ -89,10 +88,17 @@ python -m pip install 'certbot==3.0.0' 'certbot-dns-alias[certbot3]'
 ```
 
 The alias supports the same extra: `certbot-dns-delegation[certbot3]`.
-Default installations on Certbot 5 do not impose this legacy TLS dependency cap.
+
+For a Certbot 4 host, pin its installed version without the legacy extra, for example:
+
+```bash
+python -m pip install 'certbot==4.0.0' 'acme==4.0.0' certbot-dns-alias
+```
+
+Default installations on Certbot 4 and 5 do not impose this legacy TLS dependency cap.
 The extra is a compatibility option, not a security update for old dependencies; use a
 maintained Certbot 5 host when possible. The extra's constraints apply on Python 3.9–3.13;
-Python 3.14 supports only Certbot 5.
+Python 3.14 supports Certbot 4 and 5.
 
 If your deployment also pins ACME, pyOpenSSL, or other dependencies, use its constraints file.
 The plugin and Certbot must share the same Python environment. For a snap or Docker installation
@@ -330,7 +336,7 @@ For API fields and permissions, see
 
 ## GoDaddy REST client
 
-The package includes an internal synchronous GoDaddy Domains v3 client using `httpx2`.
+The package includes an internal synchronous GoDaddy Domains v3 client using `httpx`.
 The GoDaddy Certbot provider uses this client; it is also available for direct API calls.
 The client uses a Personal Access Token (PAT), with `domains.domain:read` for queries and
 `domains.dns:update` for writes. Legacy API key/secret credentials are not accepted by v3.
@@ -357,7 +363,8 @@ Certbot's `PluginError` and omit sensitive API messages. A delete returning 404 
 Use `ote=True` with separate OTE credentials
 for the test environment. Close the client after use, preferably with a context manager.
 Lost responses after successful writes can leave records behind; do not blindly retry writes.
-Python 3.9 installs HTTPX2 2.0; Python 3.10–3.14 can use newer 2.x releases.
+GoDaddy and Cloudflare share the same `httpx` dependency on all supported Python versions.
+Custom transports must implement `httpx.BaseTransport`, such as `httpx.MockTransport`.
 
 ## License
 
