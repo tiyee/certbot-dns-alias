@@ -1,7 +1,7 @@
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+from acme import challenges
 from certbot import errors
 
 from certbot_dns_alias.providers.base import TxtRecord
@@ -79,22 +79,38 @@ def test_cleanup_error_can_be_retried(authenticator, provider, caplog):
     assert not authenticator._leases
 
 
-def test_certbot_perform_cleanup_lifecycle(authenticator, provider, monkeypatch):
+def test_certbot_perform_cleanup_lifecycle(authenticator, provider, dns_challenges, monkeypatch):
     # Exercise Certbot's public API as well as our private challenge methods.
     monkeypatch.setattr(authenticator, "_setup_credentials", Mock())
     notify = Mock()
     sleep = Mock()
     monkeypatch.setattr("certbot.plugins.dns_common.display_util.notify", notify)
     monkeypatch.setattr("certbot.plugins.dns_common.sleep", sleep)
-    challenges = []
-    for token in ["apex-token", "wildcard-token"]:
-        challenge = Mock()
-        challenge.identifier = SimpleNamespace(value="example.com")
-        challenge.validation_domain_name.return_value = "_acme-challenge.example.com"
-        challenge.validation.return_value = token
-        challenge.response.return_value = "response-" + token
-        challenges.append(challenge)
-    assert authenticator.perform(challenges) == ["response-apex-token", "response-wildcard-token"]
+    responses = authenticator.perform(dns_challenges)
+    assert len(responses) == 2
+    assert all(isinstance(response, challenges.DNS01Response) for response in responses)
+    validations = [challenge.validation(challenge.account_key) for challenge in dns_challenges]
+    assert [call.args[2] for call in provider.create_txt_record.call_args_list] == validations
+    assert len(set(validations)) == 2
     sleep.assert_called_once_with(0)
-    authenticator.cleanup(challenges)
+    authenticator.cleanup(dns_challenges)
     assert provider.delete_txt_record.call_count == 2
+    assert not authenticator._leases
+    assert not authenticator._challenges
+
+
+def test_public_lifecycle_cleans_partial_failure(
+    authenticator, provider, dns_challenges, monkeypatch
+):
+    monkeypatch.setattr(authenticator, "_setup_credentials", Mock())
+    provider.create_txt_record.side_effect = ["101", errors.PluginError("write failed")]
+    sleep = Mock()
+    monkeypatch.setattr("certbot.plugins.dns_common.sleep", sleep)
+    with pytest.raises(errors.PluginError, match="write failed"):
+        authenticator.perform(dns_challenges)
+    sleep.assert_not_called()
+    # Certbot's caller requests cleanup after a partial failure.
+    authenticator.cleanup(dns_challenges)
+    provider.delete_txt_record.assert_called_once_with("delegate.example.net", "101")
+    assert not authenticator._leases
+    assert not authenticator._challenges

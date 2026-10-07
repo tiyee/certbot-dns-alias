@@ -1,10 +1,38 @@
 from types import SimpleNamespace
 from unittest.mock import Mock
 
+import josepy
 import pytest
+from acme import challenges, messages
+from certbot import achallenges
+from cryptography.hazmat.primitives.asymmetric import rsa
 
+from certbot_dns_alias.compat import certbot_major_version
 from certbot_dns_alias.dns_alias import Authenticator
 from certbot_dns_alias.providers.base import DNSProvider, ZoneRouter
+
+
+@pytest.fixture
+def dns_challenges():
+    """Use each host's real challenge API so mocks cannot hide field changes."""
+    key = josepy.JWKRSA(key=rsa.generate_private_key(public_exponent=65537, key_size=2048))
+    result = []
+    for token in [b"apex-token-123456", b"wildcard-token-1"]:
+        arguments = {"domain": "example.com"}
+        if certbot_major_version() >= 5 and "identifier" in (
+            achallenges.KeyAuthorizationAnnotatedChallenge.__slots__
+        ):
+            arguments = {
+                "identifier": messages.Identifier(typ=messages.IDENTIFIER_FQDN, value="example.com")
+            }
+        result.append(
+            achallenges.KeyAuthorizationAnnotatedChallenge(
+                challb=messages.ChallengeBody(chall=challenges.DNS01(token=token)),
+                account_key=key,
+                **arguments,
+            )
+        )
+    return result
 
 
 @pytest.fixture

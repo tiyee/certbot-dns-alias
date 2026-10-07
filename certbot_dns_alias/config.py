@@ -1,5 +1,7 @@
 """Validate Certbot INI credentials and construct provider accounts."""
 
+from __future__ import annotations
+
 from certbot import errors
 from certbot.plugins.dns_common import CredentialsConfiguration
 

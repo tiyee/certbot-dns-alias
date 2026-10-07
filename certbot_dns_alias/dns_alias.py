@@ -1,5 +1,7 @@
 """Certbot DNS authenticator with CNAME delegation to Aliyun and DNSPod."""
 
+from __future__ import annotations
+
 import ipaddress
 import logging
 import math
@@ -10,6 +12,7 @@ import dns.resolver
 from certbot import errors
 from certbot.plugins import dns_common
 
+from certbot_dns_alias.compat import DNSAuthenticator
 from certbot_dns_alias.config import build_router, validate_credentials
 from certbot_dns_alias.dns import CnameResolver, normalize_name, relative_name
 from certbot_dns_alias.providers.base import DNSProvider, ZoneRouter
@@ -27,7 +30,7 @@ class _RecordLease:
     users: int = 1
 
 
-class Authenticator(dns_common.DNSAuthenticator):
+class Authenticator(DNSAuthenticator):
     """Place each ACME TXT value in its final CNAME target's managed zone."""
 
     description = "DNS-01 with CNAME delegation to Alibaba Cloud DNS or Tencent Cloud DNSPod."

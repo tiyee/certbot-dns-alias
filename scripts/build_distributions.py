@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 try:
     import tomllib
-except ModuleNotFoundError:  # Python 3.10
+except ModuleNotFoundError:  # Python 3.9–3.10
     import tomli as tomllib
 
 

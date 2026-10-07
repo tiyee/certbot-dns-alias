@@ -1,5 +1,7 @@
 """Alibaba Cloud DNS adapter using the official OpenAPI SDK."""
 
+from __future__ import annotations
+
 from alibabacloud_alidns20150109 import models
 from alibabacloud_alidns20150109.client import Client
 from alibabacloud_tea_openapi.models import Config

@@ -2,6 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 from certbot import errors
+from certbot.compat import filesystem
 from certbot.plugins.dns_common import CredentialsConfiguration
 
 from certbot_dns_alias.config import build_router, validate_credentials
@@ -11,7 +12,7 @@ from certbot_dns_alias.providers.base import DNSProvider, ZoneRouter
 def credentials(tmp_path, text):
     path = tmp_path / "credentials.ini"
     path.write_text(text)
-    path.chmod(0o600)
+    filesystem.chmod(str(path), 0o600)
     return CredentialsConfiguration(str(path), lambda key: "dns_alias_" + key)
 
 
@@ -134,7 +135,7 @@ dns_alias_tencent_secret_id=fake-id
 dns_alias_tencent_secret_key=fake-key
 dns_alias_tencent_zones=delegate.example.net
 """)
-    path.chmod(0o600)
+    filesystem.chmod(str(path), 0o600)
     authenticator.config.dns_alias_credentials = str(path)
     authenticator.config.dns_alias_resolvers = "1.1.1.1, 2606:4700:4700::1111"
     authenticator._setup_credentials()
