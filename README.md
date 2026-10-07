@@ -3,7 +3,7 @@
 English | [Simplified Chinese](README.zh-CN.md)
 
 A Certbot DNS-01 plugin that manages TXT validation records through CNAME delegation
-with Alibaba Cloud DNS or Tencent Cloud DNSPod.
+with Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare.
 
 **Supports Certbot 3.x and 5.x** with a single plugin codebase for both host versions.
 
@@ -19,14 +19,15 @@ Create a CNAME record in the DNS zone of the domain you want to secure:
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-Host `delegate.example.net` on Alibaba Cloud or Tencent Cloud. The plugin follows the CNAME
-chain, adds the challenge's TXT value at the final target `example-com.delegate.example.net`,
+Host `delegate.example.net` on Alibaba Cloud, Tencent Cloud, or Cloudflare. The plugin follows
+the CNAME chain, adds the challenge's TXT value at the final target `example-com.delegate.example.net`,
 waits for DNS propagation, and cleans up using the saved record ID when validation finishes.
 The original domain can use any DNS provider; the plugin only needs API credentials for the
 target's managed zone.
 
 - Supports multiple CNAME hops, wildcard certificates, and multiple domains in one certificate.
-- Uses Alibaba Cloud or Tencent Cloud individually, or both in one request with `auto` mode.
+- Uses Alibaba Cloud, Tencent Cloud, or Cloudflare individually,
+  or any combination in one request with `auto` mode.
 - Selects the longest matching DNS suffix from managed zones, respecting label boundaries and
   supporting names such as `example.co.uk` and separately hosted subdomains.
 - Handles API pagination for zone and TXT queries; explicit zone lists skip automatic discovery.
@@ -44,7 +45,7 @@ Supports Python **3.9–3.14** and **Certbot 3.x and 5.x** in the following comb
 | 3.10–3.13 | Supported | Supported |
 | 3.14 | Older josepy cannot be imported | Supported |
 
-Both cloud provider SDKs are installed with the plugin.
+All three provider SDKs are installed with the plugin.
 
 ## Installation
 
@@ -122,7 +123,34 @@ Optional setting: `dns_alias_tencent_token` (temporary session credentials). The
 Tencent Cloud API v20210323 at `dnspod.tencentcloudapi.com`, rather than the legacy DNSPod Token
 API or the international endpoint.
 
-### Using both cloud providers
+### Cloudflare
+
+```ini
+dns_alias_provider = cloudflare
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+```
+
+Use an API Token with `Zone:DNS:Edit` and `Zone:Zone:Read` for the delegated zones.
+The plugin uses `https://api.cloudflare.com/client/v4` and discovers zones visible to the token.
+Global API keys are not supported.
+
+To skip zone discovery and avoid the `Zone:Zone:Read` permission, provide zone-name:ID pairs:
+
+```ini
+dns_alias_cloudflare_zone_ids = delegate.example.net:0123456789abcdef0123456789abcdef
+```
+
+Replace the placeholder with the 32-character Zone ID from the Cloudflare dashboard.
+Separate multiple pairs with commas. This mapping restricts eligible zones to the listed names.
+You may further restrict them with `dns_alias_cloudflare_zones`; every listed name must have
+an entry in `dns_alias_cloudflare_zone_ids`. Explicit Cloudflare zone names without IDs are
+rejected because skipping discovery requires their IDs.
+
+Cloudflare TXT record TTL is `1` (automatic) or 60–86400 seconds (30-second minimum for Enterprise).
+The plugin's default `600` is valid. Keep delegation CNAME records in DNS-only mode so public
+resolvers can follow them; Cloudflare proxying or CNAME flattening can hide the CNAME.
+
+### Using multiple providers
 
 ```ini
 dns_alias_provider = auto
@@ -132,6 +160,8 @@ dns_alias_aliyun_zones = ali-delegate.example.net
 dns_alias_tencent_secret_id = YOUR_SECRET_ID
 dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
 ```
 
 For example:
@@ -143,13 +173,15 @@ _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.
 
 Then pass `-d example.com -d api.example.org` in the same certificate request. The `auto` mode
 requires at least one complete set of credentials; configuring only one provider is also valid.
-If the same longest matching zone belongs to both providers, the plugin reports an error.
+If the same longest matching zone belongs to multiple providers, the plugin reports an error.
 Adjust the explicit zone lists or select a single `provider` to resolve the ambiguity.
 
 All `*_zones` settings are optional. Separate multiple zones with commas, for example
 `example.net, example.co.uk`. An explicit list restricts eligible zones and skips that provider's
 domain discovery API. Use actual zone names hosted by the cloud provider, rather than complete
-TXT hostnames. When omitted, the plugin discovers all zones visible to the credentials.
+TXT hostnames. For Cloudflare, an explicit zone list also requires IDs as described above.
+When both Cloudflare zone settings are omitted, or for other providers when `*_zones` is omitted,
+the plugin discovers all zones visible to the credentials.
 Currently, one credential account is supported per provider.
 
 ## Issuance and renewal
@@ -230,6 +262,15 @@ Tencent Cloud requires:
 - `dnspod:CreateRecord`
 - `dnspod:DeleteRecord`
 - `dnspod:DescribeDomainList` when `dns_alias_tencent_zones` is not configured
+
+Cloudflare API Tokens require:
+
+- `Zone:DNS:Edit` for listing, creating, and deleting TXT records
+- `Zone:Zone:Read` when `dns_alias_cloudflare_zone_ids` is not configured
+
+Restrict the token's zone resources to the delegated zones. See
+[Cloudflare DNS records](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/)
+and [zone discovery](https://developers.cloudflare.com/api/python/resources/zones/methods/list/).
 
 Restrict permissions to delegated zones where the cloud provider supports resource scoping.
 For API fields and permissions, see

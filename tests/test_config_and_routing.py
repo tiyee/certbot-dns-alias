@@ -24,6 +24,10 @@ def credentials(tmp_path, text):
         "dns_alias_provider=aliyun\ndns_alias_aliyun_access_key_id=id",
         "dns_alias_provider=tencent\ndns_alias_tencent_secret_id=id\ndns_alias_tencent_secret_key=",
         "dns_alias_provider=tencent, aliyun",
+        "dns_alias_provider=cloudflare",
+        "dns_alias_provider=cloudflare\ndns_alias_cloudflare_api_token=",
+        "dns_alias_provider=cloudflare\ndns_alias_cloudflare_api_token=one, two",
+        "dns_alias_provider=auto\ndns_alias_cloudflare_api_token=",
     ],
 )
 def test_invalid_credentials(tmp_path, text):
@@ -36,10 +40,14 @@ def test_mixed_credentials_and_zone_allowlist(tmp_path, monkeypatch):
     aliyun.name = "aliyun"
     tencent = Mock(spec=DNSProvider)
     tencent.name = "tencent"
+    cloudflare = Mock(spec=DNSProvider)
+    cloudflare.name = "cloudflare"
     ali_factory = Mock(return_value=aliyun)
     ten_factory = Mock(return_value=tencent)
+    cf_factory = Mock(return_value=cloudflare)
     monkeypatch.setattr("certbot_dns_alias.config.AliyunDNSProvider", ali_factory)
     monkeypatch.setattr("certbot_dns_alias.config.TencentDNSProvider", ten_factory)
+    monkeypatch.setattr("certbot_dns_alias.config.CloudflareDNSProvider", cf_factory)
     conf = credentials(
         tmp_path,
         """
@@ -53,6 +61,8 @@ dns_alias_tencent_secret_id = ten-id
 dns_alias_tencent_secret_key = ten-secret
 dns_alias_tencent_token = ten-session
 dns_alias_tencent_zones = sub.example.co.uk
+dns_alias_cloudflare_api_token = cf-token
+dns_alias_cloudflare_zone_ids = cloudflare.example.net:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 """,
     )
     validate_credentials(conf)
@@ -60,12 +70,15 @@ dns_alias_tencent_zones = sub.example.co.uk
     assert router.find("host.example.co.uk") == (aliyun, "example.co.uk")
     assert router.find("host.sub.example.co.uk") == (tencent, "sub.example.co.uk")
     assert router.find("other.net") == (aliyun, "other.net")
+    assert router.find("host.cloudflare.example.net") == (cloudflare, "cloudflare.example.net")
     aliyun.list_zones.assert_not_called()
     tencent.list_zones.assert_not_called()
+    cloudflare.list_zones.assert_not_called()
     ali_factory.assert_called_once_with(
         "ali-id", "ali-secret", region_id="cn-shanghai", security_token="ali-session"
     )
     ten_factory.assert_called_once_with("ten-id", "ten-secret", token="ten-session")
+    cf_factory.assert_called_once_with("cf-token", zone_ids={"cloudflare.example.net": "a" * 32})
 
 
 def test_auto_with_one_provider_and_defaults(tmp_path, monkeypatch):
@@ -160,3 +173,98 @@ def test_invalid_cli_options(authenticator, key, value):
     setattr(authenticator.config, key, value)
     with pytest.raises(errors.PluginError):
         authenticator._setup_credentials()
+
+
+@pytest.mark.parametrize("mode", ["cloudflare", "auto"])
+def test_cloudflare_token_only_discovers_zones(tmp_path, monkeypatch, mode):
+    provider = Mock(spec=DNSProvider)
+    provider.list_zones.return_value = ["example.com"]
+    factory = Mock(return_value=provider)
+    monkeypatch.setattr("certbot_dns_alias.config.CloudflareDNSProvider", factory)
+    conf = credentials(tmp_path, f"dns_alias_provider={mode}\ndns_alias_cloudflare_api_token=token")
+    validate_credentials(conf)
+    router = build_router(conf)
+    assert set(router.providers) == {"cloudflare"}
+    assert router.find("host.example.com") == (provider, "example.com")
+    provider.list_zones.assert_called_once()
+    factory.assert_called_once_with("token", zone_ids=None)
+
+
+@pytest.mark.parametrize("explicit_zones", ["", "dns_alias_cloudflare_zones=example.com"])
+def test_cloudflare_explicit_ids_skip_discovery_and_restrict_zones(
+    tmp_path, monkeypatch, explicit_zones
+):
+    factory = Mock()
+    monkeypatch.setattr("certbot_dns_alias.config.CloudflareDNSProvider", factory)
+    conf = credentials(
+        tmp_path,
+        "dns_alias_provider=cloudflare\ndns_alias_cloudflare_api_token=token\n"
+        "dns_alias_cloudflare_zone_ids=Example.COM.:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+        + explicit_zones,
+    )
+    validate_credentials(conf)
+    router = build_router(conf)
+    assert router.find("host.example.com") == (factory.return_value, "example.com")
+    factory.return_value.list_zones.assert_not_called()
+    factory.assert_called_once_with("token", zone_ids={"example.com": "a" * 32})
+    with pytest.raises(errors.PluginError, match="No managed zone"):
+        router.find("host.other.com")
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        "dns_alias_cloudflare_zones=example.com",
+        "dns_alias_cloudflare_zone_ids=",
+        "dns_alias_cloudflare_zone_ids=example.com",
+        "dns_alias_cloudflare_zone_ids=example.com:short-id",
+        "dns_alias_cloudflare_zone_ids=example.com:" + "z" * 32,
+        "dns_alias_cloudflare_zone_ids=example.com:" + "a" * 32 + ", Example.COM.:" + "b" * 32,
+        "dns_alias_cloudflare_zone_ids=example.com:" + "a" * 32 + "\n"
+        "dns_alias_cloudflare_zones=other.com",
+        "dns_alias_cloudflare_zone_ids=*.example.com:" + "a" * 32,
+    ],
+)
+def test_invalid_cloudflare_zone_configuration(tmp_path, settings):
+    conf = credentials(
+        tmp_path, "dns_alias_provider=cloudflare\ndns_alias_cloudflare_api_token=token\n" + settings
+    )
+    with pytest.raises(errors.PluginError):
+        validate_credentials(conf)
+
+
+def test_cloudflare_conflicting_zone_is_ambiguous(tmp_path, monkeypatch, provider):
+    monkeypatch.setattr("certbot_dns_alias.config.TencentDNSProvider", Mock(return_value=provider))
+    cloudflare = Mock(spec=DNSProvider)
+    monkeypatch.setattr(
+        "certbot_dns_alias.config.CloudflareDNSProvider", Mock(return_value=cloudflare)
+    )
+    conf = credentials(
+        tmp_path,
+        """
+dns_alias_provider=auto
+dns_alias_tencent_secret_id=id
+dns_alias_tencent_secret_key=secret
+dns_alias_tencent_zones=delegate.example.net
+dns_alias_cloudflare_api_token=token
+dns_alias_cloudflare_zone_ids=delegate.example.net:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+""",
+    )
+    with pytest.raises(errors.PluginError, match="Ambiguous"):
+        build_router(conf).find("host.delegate.example.net")
+
+
+def test_real_cloudflare_credentials_setup(tmp_path, authenticator):
+    conf = credentials(
+        tmp_path,
+        """
+dns_alias_provider=cloudflare
+dns_alias_cloudflare_api_token=fake-token
+dns_alias_cloudflare_zone_ids=delegate.example.net:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+""",
+    )
+    authenticator.config.dns_alias_credentials = conf.confobj.filename
+    authenticator._setup_credentials()
+    assert authenticator.credentials.conf("cloudflare_api_token") == "fake-token"
+    assert set(authenticator._router.providers) == {"cloudflare"}
+    assert authenticator._router.find("customer.delegate.example.net")[1] == "delegate.example.net"

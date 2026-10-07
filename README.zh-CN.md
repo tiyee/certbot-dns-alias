@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS 或腾讯云 DNSPod 管理 TXT 验证记录。
+Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS、腾讯云 DNSPod 或 Cloudflare 管理 TXT 验证记录。
 
 **支持 Certbot 3.x 和 5.x**，同一份插件可在这两个版本系列的宿主环境中使用。
 
@@ -17,12 +17,12 @@ Certbot DNS-01 插件，通过 CNAME 委托在阿里云 DNS 或腾讯云 DNSPod 
 _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 ```
 
-`delegate.example.net` 托管在阿里云或腾讯云。插件自动跟随 CNAME 链，在最终目标
+`delegate.example.net` 托管在阿里云、腾讯云或 Cloudflare。插件自动跟随 CNAME 链，在最终目标
 `example-com.delegate.example.net` 添加本次挑战的 TXT 值，等待 DNS 传播，完成后按记录 ID 清理。
 业务域名可以由任意 DNS 服务商托管；插件只需要目标托管区域的 API 凭据。
 
 - 支持多级 CNAME、泛域名、一个证书包含多个域名。
-- 支持阿里云、腾讯云单独使用，或 `auto` 模式在一次申请中同时使用两者。
+- 支持阿里云、腾讯云、Cloudflare 单独使用，或 `auto` 模式在一次申请中使用任意组合。
 - 根据托管区域列表做最长 DNS 后缀匹配，支持 `example.co.uk` 和独立托管的子域，匹配包含标签边界。
 - 区域列表及 TXT 查询支持 API 分页；可以显式配置区域以跳过自动枚举。
 - 每个 TXT 值单独创建，保留同名记录的其他值；复用已有的相同有效 TXT 时不删除原记录。
@@ -37,7 +37,7 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 | 3.10–3.13 | 支持 | 支持 |
 | 3.14 | 旧版 josepy 无法导入 | 支持 |
 
-两个云服务商 SDK 均随插件安装。
+三个服务商 SDK 均随插件安装。
 
 ## 安装
 
@@ -109,7 +109,33 @@ dns_alias_tencent_zones = delegate.example.net
 可选项：`dns_alias_tencent_token`（临时会话凭据）。使用腾讯云 API v20210323 和
 `dnspod.tencentcloudapi.com`，不使用旧版 DNSPod Token API 或国际版端点。
 
-### 同时使用两家云服务商
+### Cloudflare
+
+```ini
+dns_alias_provider = cloudflare
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+```
+
+使用具有委托区域 `Zone:DNS:Edit` 和 `Zone:Zone:Read` 权限的 API Token。
+插件使用 `https://api.cloudflare.com/client/v4`，自动枚举 Token 可见的区域。
+不支持 Global API Key。
+
+要跳过区域枚举并免除 `Zone:Zone:Read` 权限，可提供区域名称与 ID 的对应关系：
+
+```ini
+dns_alias_cloudflare_zone_ids = delegate.example.net:0123456789abcdef0123456789abcdef
+```
+
+将占位值替换为 Cloudflare 控制台中的 32 位 Zone ID，多个 `区域名称:ID` 用逗号分隔。
+配置后仅允许列表中的区域。可通过 `dns_alias_cloudflare_zones` 进一步限制，
+其中每个区域名称都必须在 `dns_alias_cloudflare_zone_ids` 中有对应 ID。
+只配置 Cloudflare 区域名称而没有 ID 会报错，因为跳过枚举需要预先提供 ID。
+
+Cloudflare TXT 的 TTL 支持 `1`（自动）或 60–86400 秒（Enterprise 最低 30 秒），
+插件默认 `600` 符合要求。委托 CNAME 应设为 DNS-only，以便公共解析器跟随；
+Cloudflare 代理或 CNAME flattening 可能隐藏 CNAME。
+
+### 同时使用多家服务商
 
 ```ini
 dns_alias_provider = auto
@@ -119,6 +145,8 @@ dns_alias_aliyun_zones = ali-delegate.example.net
 dns_alias_tencent_secret_id = YOUR_SECRET_ID
 dns_alias_tencent_secret_key = YOUR_SECRET_KEY
 dns_alias_tencent_zones = tencent-delegate.example.org
+dns_alias_cloudflare_api_token = YOUR_API_TOKEN
+dns_alias_cloudflare_zone_ids = cf-delegate.example.net:0123456789abcdef0123456789abcdef
 ```
 
 例如：
@@ -129,12 +157,13 @@ _acme-challenge.api.example.org.  300 IN CNAME api-example-org.tencent-delegate.
 ```
 
 随后在同一命令中传入 `-d example.com -d api.example.org` 即可。`auto` 至少需要一组完整密钥，
-也可以只配置一家。如果同一最长匹配区域同时属于两个服务商，插件会报错；通过调整显式区域列表
+也可以只配置一家。如果同一最长匹配区域同时属于多个服务商，插件会报错；通过调整显式区域列表
 或选择单一 `provider` 消除歧义。
 
 所有 `*_zones` 均为可选项，多个区域以逗号分隔，例如 `example.net, example.co.uk`。
 配置后只允许这些区域，不再调用对应的域名枚举 API；填写云平台实际托管区域名称，
-不要填写完整 TXT 主机名。未配置时自动枚举当前凭据可见的区域。
+不要填写完整 TXT 主机名。Cloudflare 显式区域列表还需按上述说明提供 ID。
+Cloudflare 的两个区域配置均省略时，或其他服务商未配置 `*_zones` 时，自动枚举当前凭据可见的区域。
 每家服务商目前支持一个凭据账号。
 
 ## 申请和续期
@@ -205,6 +234,15 @@ TTL 与传播等待时间不同。第一次创建目标主机可能受 DNS 负�
 - `dnspod:CreateRecord`
 - `dnspod:DeleteRecord`
 - 未配置 `dns_alias_tencent_zones` 时，还需要 `dnspod:DescribeDomainList`
+
+Cloudflare API Token 需要：
+
+- `Zone:DNS:Edit`，用于查询、创建及删除 TXT 记录
+- 未配置 `dns_alias_cloudflare_zone_ids` 时，还需要 `Zone:Zone:Read`
+
+将 Token 的区域资源限制为委托区域。参考
+[Cloudflare DNS 记录](https://developers.cloudflare.com/api/python/resources/dns/subresources/records/methods/create/) 和
+[区域枚举](https://developers.cloudflare.com/api/python/resources/zones/methods/list/)。
 
 可根据云平台支持的资源范围将权限限制在委托区域。API 字段与权限参考
 [阿里云 AddDomainRecord](https://www.alibabacloud.com/help/en/dns/api-alidns-2015-01-09-adddomainrecord)、

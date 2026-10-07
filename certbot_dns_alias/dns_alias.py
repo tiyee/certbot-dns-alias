@@ -1,4 +1,4 @@
-"""Certbot DNS authenticator with CNAME delegation to Aliyun and DNSPod."""
+"""Certbot DNS authenticator with CNAME delegation to managed DNS providers."""
 
 from __future__ import annotations
 
@@ -33,7 +33,9 @@ class _RecordLease:
 class Authenticator(DNSAuthenticator):
     """Place each ACME TXT value in its final CNAME target's managed zone."""
 
-    description = "DNS-01 with CNAME delegation to Alibaba Cloud DNS or Tencent Cloud DNSPod."
+    description = (
+        "DNS-01 with CNAME delegation to Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare."
+    )
     ttl = 600
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -63,7 +65,8 @@ class Authenticator(DNSAuthenticator):
     def more_info(self) -> str:
         return (
             "Follows _acme-challenge CNAME chains and manages individual TXT records "
-            "in Alibaba Cloud DNS or Tencent Cloud DNSPod. Select aliyun, tencent, or auto "
+            "in Alibaba Cloud DNS, Tencent Cloud DNSPod, or Cloudflare. "
+            "Select aliyun, tencent, cloudflare, or auto "
             "in the credentials file. Cleanup uses saved record IDs and delegation targets."
         )
 
