@@ -36,7 +36,7 @@ def run_report(tmp_path, version, exit_code, payload):
     return result, summary.read_text(encoding="utf-8")
 
 
-@pytest.mark.parametrize("version", ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"])
+@pytest.mark.parametrize("version", ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"])
 def test_vulnerabilities_only_nonblocking_on_python39(tmp_path, version):
     payload = {"dependencies": [{"name": "example", "version": "1.0", "vulns": [FINDING]}]}
     result, summary = run_report(tmp_path, version, 1, payload)

@@ -6,15 +6,18 @@ Changes apply to both `certbot-dns-alias` and `certbot-dns-delegation` unless no
 
 ### Added
 
-- Certbot 4.x support on Python 3.9–3.14, including installed-wheel lifecycle tests,
+- Python 3.15 support with Certbot 4 and 5, including installed-wheel lifecycle tests,
+  alias installation/removal checks, locked dependency audits, and lower-bound checks in CI.
+- Certbot 4.x support on Python 3.9–3.15, including installed-wheel lifecycle tests,
   alias installation/removal checks, and dependency lower-bound checks in CI.
 - Allow modern TLS dependencies on Python 3.9 Certbot 4 hosts; retain legacy TLS constraints
   through the `certbot3` extra and in the locked Python 3.9 development environment.
-- Dependency audits of locked Python 3.9–3.14 environments, with retained JSON reports and
-  release gating on Python 3.10–3.14; legacy Python 3.9 findings remain non-blocking.
+- Dependency audits of locked Python 3.9–3.15 environments, with retained JSON reports and
+  release gating on Python 3.10–3.15; legacy Python 3.9 findings remain non-blocking.
 
 ### Changed
 
+- Refresh locked Pydantic dependencies on Python ≥3.10 to use Python 3.15 binary wheels.
 - Report accepted Python 3.9 dependency findings as warnings with full advisory tables in CI
   logs and job summaries. Modern-host findings remain blocking, and audit errors remain explicit.
 - Use HTTPX for the GoDaddy REST client as well as the Cloudflare SDK, removing the HTTPX2

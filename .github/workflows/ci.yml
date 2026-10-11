@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -126,6 +126,8 @@ jobs:
             tox-env: py313-certbot4
           - python: "3.14"
             tox-env: py314-certbot4
+          - python: "3.15"
+            tox-env: py315-certbot4
           - python: "3.10"
             tox-env: py310-certbot5
           - python: "3.11"
@@ -136,6 +138,8 @@ jobs:
             tox-env: py313-certbot5
           - python: "3.14"
             tox-env: py314-certbot5
+          - python: "3.15"
+            tox-env: py315-certbot5
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -165,11 +169,11 @@ jobs:
             certbot: "3"
           - python: "3.9"
             certbot: "4"
-          - python: "3.14"
+          - python: "3.15"
             certbot: "4"
           - python: "3.10"
             certbot: "5"
-          - python: "3.14"
+          - python: "3.15"
             certbot: "5"
     steps:
       - uses: actions/checkout@v7.0.1

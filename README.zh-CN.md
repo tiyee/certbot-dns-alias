@@ -29,13 +29,13 @@ _acme-challenge.example.com.  300 IN CNAME example-com.delegate.example.net.
 - 清理使用创建时保存的目标区域和记录 ID；CNAME 发生变化也不会改删其他区域。
 - CNAME 环路、超深链、DNS 超时、权限错误和区域归属冲突会产生明确错误。
 
-支持 Python **3.9–3.14**、**Certbot 3.x、4.x 和 5.x**，具体组合如下：
+支持 Python **3.9–3.15**、**Certbot 3.x、4.x 和 5.x**，具体组合如下：
 
 | Python | Certbot 3.x | Certbot 4.x | Certbot 5.x |
 | --- | --- | --- | --- |
 | 3.9 | 支持 | 支持 | 上游要求 Python ≥3.10 |
 | 3.10–3.13 | 支持 | 支持 | 支持 |
-| 3.14 | 旧版 josepy 无法导入 | 支持 | 支持 |
+| 3.14–3.15 | 旧版 josepy 无法导入 | 支持 | 支持 |
 
 DNS 名称使用非过渡式 IDNA2008 规范化；Unicode 名称与对应的 Punycode 表示指向同一区域，
 例如 `faß.de` 与 `xn--fa-hia.de`。
@@ -65,7 +65,7 @@ python -m pip install certbot-dns-delegation
 uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
-插件按 Python 版本声明宿主依赖：Python 3.9 可使用 Certbot 3 或 4，Python 3.14 可使用 Certbot 4 或 5，
+插件按 Python 版本声明宿主依赖：Python 3.9 可使用 Certbot 3 或 4，Python 3.14–3.15 可使用 Certbot 4 或 5，
 Python 3.10–3.13 可使用 Certbot 3、4 或 5。
 已有宿主满足兼容约束时，pip 默认的依赖升级策略只在必要时升级依赖。
 如果需要严格保持宿主版本，可在安装时显式固定实际版本。
@@ -87,7 +87,7 @@ python -m pip install 'certbot==4.0.0' 'acme==4.0.0' certbot-dns-alias
 
 Certbot 4 和 5 的默认安装不会施加上述旧版 TLS 依赖上限。
 这个 extra 用于兼容旧宿主，并不能修复旧依赖的安全问题；条件允许时，应使用仍受维护的
-Certbot 5 宿主。该 extra 的约束适用于 Python 3.9–3.13；Python 3.14 支持 Certbot 4 和 5。
+Certbot 5 宿主。该 extra 的约束适用于 Python 3.9–3.13；Python 3.14–3.15 支持 Certbot 4 和 5。
 
 如部署环境还固定了 ACME、pyOpenSSL 等依赖，应同时使用该环境的 constraints 文件。
 插件与 Certbot 必须处于同一 Python 环境；已有 snap/docker 版 Certbot 时，需按对应安装方式
