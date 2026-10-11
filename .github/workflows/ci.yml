@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -30,12 +30,20 @@ jobs:
       - name: Audit dependencies
         # Legacy TLS constraints retain known advisories; see SECURITY.md.
         continue-on-error: ${{ matrix.python == '3.9' }}
+        env:
+          AUDIT_PYTHON_VERSION: ${{ matrix.python }}
         run: |
+          audit_exit=0
+          rm -f dependency-audit.json
           uv tool run --python 3.13 pip-audit==2.10.1 \
             --requirement audit-requirements.txt \
             --no-deps --disable-pip --strict --progress-spinner off \
             --cache-dir "${{ runner.temp }}/pip-audit-cache" \
-            --format json --output dependency-audit.json
+            --format json --output dependency-audit.json || audit_exit=$?
+          uv run --no-sync python scripts/report_dependency_audit.py \
+            --report dependency-audit.json \
+            --python-version "$AUDIT_PYTHON_VERSION" \
+            --exit-code "$audit_exit"
       - name: Save dependency audit report
         if: ${{ always() }}
         uses: actions/upload-artifact@v7.0.1
@@ -52,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -118,6 +126,8 @@ jobs:
             tox-env: py313-certbot4
           - python: "3.14"
             tox-env: py314-certbot4
+          - python: "3.15"
+            tox-env: py315-certbot4
           - python: "3.10"
             tox-env: py310-certbot5
           - python: "3.11"
@@ -128,6 +138,8 @@ jobs:
             tox-env: py313-certbot5
           - python: "3.14"
             tox-env: py314-certbot5
+          - python: "3.15"
+            tox-env: py315-certbot5
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.2.0
@@ -157,11 +169,11 @@ jobs:
             certbot: "3"
           - python: "3.9"
             certbot: "4"
-          - python: "3.14"
+          - python: "3.15"
             certbot: "4"
           - python: "3.10"
             certbot: "5"
-          - python: "3.14"
+          - python: "3.15"
             certbot: "5"
     steps:
       - uses: actions/checkout@v7.0.1

@@ -37,13 +37,13 @@ target's managed zone.
 - Reports clear errors for CNAME loops, excessive chain depth, DNS timeouts, permission failures,
   and ambiguous zone ownership.
 
-Supports Python **3.9–3.14** and **Certbot 3.x, 4.x, and 5.x** in the following combinations:
+Supports Python **3.9–3.15** and **Certbot 3.x, 4.x, and 5.x** in the following combinations:
 
 | Python | Certbot 3.x | Certbot 4.x | Certbot 5.x |
 | --- | --- | --- | --- |
 | 3.9 | Supported | Supported | Upstream requires Python ≥3.10 |
 | 3.10–3.13 | Supported | Supported | Supported |
-| 3.14 | Older josepy cannot be imported | Supported | Supported |
+| 3.14–3.15 | Older josepy cannot be imported | Supported | Supported |
 
 DNS names use non-transitional IDNA2008 normalization; Unicode names and their Punycode
 forms identify the same zone (for example, `faß.de` and `xn--fa-hia.de`).
@@ -76,7 +76,7 @@ uv pip install --python /path/to/certbot-venv/bin/python certbot-dns-alias
 ```
 
 Host dependency requirements depend on the Python version: Python 3.9 can use Certbot 3 or 4,
-Python 3.14 can use Certbot 4 or 5, and Python 3.10–3.13 can use Certbot 3, 4, or 5.
+Python 3.14–3.15 can use Certbot 4 or 5, and Python 3.10–3.13 can use Certbot 3, 4, or 5.
 When the installed host satisfies these requirements, pip's default upgrade strategy only
 upgrades dependencies when needed. To preserve an exact host version, pin it explicitly during
 installation. **Every Certbot 3 host must use the `certbot3` extra**, which also constrains
@@ -98,7 +98,7 @@ python -m pip install 'certbot==4.0.0' 'acme==4.0.0' certbot-dns-alias
 Default installations on Certbot 4 and 5 do not impose this legacy TLS dependency cap.
 The extra is a compatibility option, not a security update for old dependencies; use a
 maintained Certbot 5 host when possible. The extra's constraints apply on Python 3.9–3.13;
-Python 3.14 supports Certbot 4 and 5.
+Python 3.14–3.15 supports Certbot 4 and 5.
 
 If your deployment also pins ACME, pyOpenSSL, or other dependencies, use its constraints file.
 The plugin and Certbot must share the same Python environment. For a snap or Docker installation

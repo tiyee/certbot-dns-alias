@@ -30,20 +30,23 @@ If you receive no response, follow up through the same private email channel.
 Version 1.0.0 is the current stable release. See [CHANGELOG.md](CHANGELOG.md) for changes and upgrade
 notes. The Python/Certbot compatibility table in [README.md](README.md) describes functional
 compatibility; it is not a guarantee that every third-party dependency is free of advisories.
-Certbot 4 is supported on Python 3.9–3.14 without the legacy Certbot 3 TLS constraints.
+Certbot 4 is supported on Python 3.9–3.15 without the legacy Certbot 3 TLS constraints.
 
 ## Dependency auditing
 
 CI runs [pip-audit](https://github.com/pypa/pip-audit) against the runtime and development
-dependencies installed by `uv sync --locked` on each supported Python version, 3.9–3.14.
+dependencies installed by `uv sync --locked` on each supported Python version, 3.9–3.15.
 The auditor runs in an isolated Python 3.13 tool environment and scans the frozen package
 versions without resolving or upgrading them. The local editable package is excluded.
 Each job uploads its dependency inventory and JSON audit report as a
 `dependency-audit-py<version>` artifact, retained for 30 days, including when the audit fails.
 
-Findings or audit errors on Python 3.10–3.14 fail CI and gate PyPI publishing through the
-reusable CI workflow. Python 3.9 audits are non-blocking because its required Certbot 3 TLS
-constraints retain known advisories described below; reports still require review. No
+Findings or audit errors on Python 3.10–3.15 fail CI and gate PyPI publishing through the
+reusable CI workflow. Python 3.9 audits are non-blocking because its locked development host
+uses Certbot 3 TLS constraints and dependencies whose newer fixes require Python 3.10.
+Confirmed findings produce a warning, with every advisory listed in the log and job summary.
+Tool errors and missing, invalid, or incomplete reports remain explicit errors, non-blocking
+only on Python 3.9. Reports still require review. No
 advisories are suppressed. This check covers the locked development environments, not every
 dependency combination allowed by the published package or every deployment environment.
 
@@ -51,7 +54,8 @@ dependency combination allowed by the published package or every deployment envi
 
 Certbot 3 support requires the `certbot3` extra and `pyOpenSSL>=24.3,<25` because its josepy dependency
 uses the removed `X509Req` API. These constraints can retain older cryptography dependencies
-with known security advisories. Python 3.9 is restricted to this legacy host series.
+with known security advisories. The locked Python 3.9 development environment uses this legacy
+host series; Python 3.9 also supports Certbot 4 without the legacy TLS constraints.
 Use a supported Python version with Certbot 5 for new deployments when possible.
 
 The 2026-10-07 release audit found advisories in a Certbot 3 environment containing pyOpenSSL
