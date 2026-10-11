@@ -24,10 +24,10 @@ If you receive no response, follow up through the same private email channel.
 | Release line | Security maintenance |
 | --- | --- |
 | Current development version | Reports accepted; fixes may change before release |
-| Latest stable 1.x release (currently 1.0.0) | Target for security fixes |
+| Latest stable 1.x release (currently 1.0.1) | Target for security fixes |
 | Older patch versions and 0.x test releases | Upgrade to the latest supported release; no promised backports |
 
-Version 1.0.0 is the current stable release. See [CHANGELOG.md](CHANGELOG.md) for changes and upgrade
+Version 1.0.1 is the current stable release. See [CHANGELOG.md](CHANGELOG.md) for changes and upgrade
 notes. The Python/Certbot compatibility table in [README.md](README.md) describes functional
 compatibility; it is not a guarantee that every third-party dependency is free of advisories.
 Certbot 4 is supported on Python 3.9–3.15 without the legacy Certbot 3 TLS constraints.

@@ -2,7 +2,7 @@
 
 Changes apply to both `certbot-dns-alias` and `certbot-dns-delegation` unless noted otherwise.
 
-## Unreleased
+## 1.0.1
 
 ### Added
 
