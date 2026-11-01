@@ -1,5 +1,10 @@
 # certbot-dns-alias
 
+[![PyPI version](https://badge.fury.io/py/certbot-dns-alias.svg)](https://badge.fury.io/py/certbot-dns-alias)
+[![Download count](https://img.shields.io/pypi/dm/certbot-dns-alias)](https://img.shields.io/pypi/dm/certbot-dns-alias)
+
+
+
 English | [Simplified Chinese](README.zh-CN.md)
 
 A Certbot DNS-01 plugin that manages TXT validation records through CNAME delegation
